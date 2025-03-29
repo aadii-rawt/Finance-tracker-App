@@ -1,5 +1,4 @@
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,140 +8,108 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
+import { db } from "../utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../utils/encryption";
-const transactions = [
-  { id: "1", title: "Upwork", date: "Today", amount: 850, type: "income" },
-  {
-    id: "2",
-    title: "Transfer",
-    date: "Yesterday",
-    amount: -85,
-    type: "expense",
-  },
-  {
-    id: "3",
-    title: "Paypal",
-    date: "Jan 30, 2022",
-    amount: 1406,
-    type: "income",
-  },
-  {
-    id: "4",
-    title: "Youtube",
-    date: "Jan 16, 2022",
-    amount: -11.99,
-    type: "expense",
-  },
-];
-
-const sendAgain = [
-  { id: "1", name: "A" },
-  { id: "2", name: "B" },
-  { id: "3", name: "C" },
-  { id: "4", name: "D" },
-];
+import RecentTransactions from "../components/ui/RecentTransactions";
 
 export default function Home() {
   const router = useRouter();
-  const { user, setUser } = useAuth();
-  console.log(user);
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    setUser(decryptData(user));
-  }, []);
-  // console.log(decryptData(user));
+    if (!user) return;
+
+    const fetchTransactions = async () => {
+      try {
+        const docRef = doc(db, "transactions", decryptData(user.uid));
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = decryptData(docSnap.data());
+          const incomeList = data.income || [];
+          const expenseList = data.expense || [];
+
+          const now = new Date();
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+          // Filter transactions inside current month
+          const filteredIncome = incomeList.filter(
+            (t) => new Date(t.date) >= startOfMonth
+          );
+          const filteredExpense = expenseList.filter(
+            (t) => new Date(t.date) >= startOfMonth
+          );
+
+          const totalIncomeCalc = filteredIncome.reduce(
+            (acc, t) => acc + t.amount,
+            0
+          );
+          const totalExpenseCalc = filteredExpense.reduce(
+            (acc, t) => acc + t.amount,
+            0
+          );
+
+          setTotalIncome(totalIncomeCalc);
+          setTotalExpense(totalExpenseCalc);
+          setBalance(totalIncomeCalc - totalExpenseCalc);
+
+          // Optional: if you want to display only filtered transactions
+          setTransactions(
+            [
+              ...filteredIncome.map((t) => ({ ...t, type: "income" })),
+              ...filteredExpense.map((t) => ({ ...t, type: "expense" })),
+            ].sort((a, b) => new Date(b.date) - new Date(a.date))
+          );
+        }
+      } catch (error) {
+        console.log("Error fetching transactions:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, [user]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <ScrollView>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Good afternoon,</Text>
           <Text style={styles.name}>{user?.username}</Text>
-          <TouchableOpacity
-            style={styles.bell}
-            onPress={() => router.push("/login")}
-          >
-            <Text>🔔</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.totalText}>Total Balance</Text>
-          <Text style={styles.amount}>$2,548.00</Text>
+          <Text style={styles.amount}>₹ {balance.toFixed()}</Text>
           <View style={styles.balanceRow}>
             <View>
               <Text style={styles.label}>Income</Text>
               <Text style={[styles.income, styles.balanceAmount]}>
-                $1,840.00
+                ₹ {totalIncome.toFixed()}
               </Text>
             </View>
             <View>
               <Text style={styles.label}>Expenses</Text>
               <Text style={[styles.expense, styles.balanceAmount]}>
-                $284.00
+                ₹ {totalExpense.toFixed()}
               </Text>
             </View>
           </View>
         </View>
-
-        {/* Transactions History */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Transactions History</Text>
-          <Text style={styles.seeAll}>See all</Text>
-        </View>
-
-        <FlatList
-          data={transactions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.transactionCard}>
-              <View style={styles.iconPlaceholder}>
-                <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                  {item.title[0]}
-                </Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={styles.transactionTitle}>{item.title}</Text>
-                <Text style={styles.transactionDate}>{item.date}</Text>
-              </View>
-              <Text
-                style={{
-                  color: item.amount > 0 ? "green" : "red",
-                  fontWeight: "bold",
-                }}
-              >
-                {item.amount > 0
-                  ? `+ $${item.amount}`
-                  : `- $${Math.abs(item.amount)}`}
-              </Text>
-            </View>
-          )}
-        />
-
-        {/* Send Again */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Send Again</Text>
-          <Text style={styles.seeAll}>See all</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {sendAgain.map((user) => (
-            <View key={user.id} style={styles.avatarPlaceholder}>
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                {user.name}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* Floating Button */}
-        <TouchableOpacity style={styles.floatingButton}>
-          <Text style={{ fontSize: 24, color: "#fff" }}>+</Text>
-        </TouchableOpacity>
       </View>
+      <View>
+        <RecentTransactions />
+      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

@@ -1,23 +1,29 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React from 'react';
-import { Link } from 'expo-router';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React from "react";
+import { Link } from "expo-router";
 
 const Signup = () => {
   return (
     <View style={styles.container}>
-
       {/* Card */}
       <View style={styles.card}>
-
         {/* Title */}
         <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Create an account so you can explore all the existing jobs</Text>
+        <Text style={styles.subtitle}>
+          Create an account so you can explore all the existing jobs
+        </Text>
 
         {/* Email */}
         <TextInput
           placeholder="Email"
           placeholderTextColor="#999"
-          style={[styles.input, { borderWidth: 1, borderColor: '#2563eb' }]}
+          style={[styles.input]}
         />
 
         {/* Password */}
@@ -42,20 +48,10 @@ const Signup = () => {
         </TouchableOpacity>
 
         {/* Already have an account */}
-        {/* <Text style={styles.bottomText}>Already have an account</Text> */}
-         <Link href='/login' style={styles.bottomText}>Already have an account</Link>
-
-        {/* Social Login */}
-        <Text style={styles.orText}>Or continue with</Text>
-
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialButton}><Text>G</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton}><Text>f</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton}><Text></Text></TouchableOpacity>
-        </View>
-
+        <Link href="/login" style={styles.bottomText}>
+          Already have an account
+        </Link>
       </View>
-
     </View>
   );
 };
@@ -65,13 +61,13 @@ export default Signup;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   card: {
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
     padding: 25,
@@ -79,56 +75,56 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1d4ed8',
+    fontWeight: "bold",
+    color: "#1d4ed8",
     marginBottom: 5,
   },
   subtitle: {
-    color: '#6b7280',
+    color: "#6b7280",
     marginBottom: 20,
     fontSize: 12,
   },
   input: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: "#f3f4f6",
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 12,
   },
   button: {
-    backgroundColor: '#2563eb',
+    backgroundColor: "#2563eb",
     paddingVertical: 14,
     borderRadius: 15,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   bottomText: {
-    color: 'blue',
-    textAlign: 'center',
+    color: "blue",
+    textAlign: "center",
     marginTop: 20,
     fontSize: 12,
   },
   orText: {
-    textAlign: 'center',
+    textAlign: "center",
     marginVertical: 15,
-    color: '#9ca3af',
+    color: "#9ca3af",
     fontSize: 12,
   },
   socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 5,
   },
   socialButton: {
     width: 50,
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#f3f4f6",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -14,7 +14,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../utils/firebase"; // import your firebase.js
 import { useAuth } from "../../context/AuthContext";
-
+import { decryptData } from "../../utils/encryption"; // import your encryption.js
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,7 +54,7 @@ const Login = () => {
         return;
       }
 
-      const userData = userDoc.data();
+      const userData =decryptData(userDoc.data());
       setUser(userData); // Store in Auth Context
 
       // Navigate to home
@@ -121,20 +121,6 @@ const Login = () => {
           <Link href="/signup" style={styles.bottomText}>
             Create an account
           </Link>
-
-          <Text style={styles.orText}>Or continue with</Text>
-
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Text>G</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Text>f</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Text></Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </SafeAreaView>
