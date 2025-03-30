@@ -69,8 +69,13 @@ const RecentTransactions = () => {
                     width: "50px",
                     height: "50px",
                     borderRadius: 10,
+                    display : "flex",
+                    alignItems : 'center',
+                    justifyContent: "center"
                   }}
-                ></View>
+                >
+                  <Text style={{color : "white", fontSize : 24, textTransform : "capitalize"}}> {item.category[0] || "Uncategorized"}</Text>
+                </View>
                 <View style={styles.col}>
                   <Text style={styles.category}>
                     {item.category || "Uncategorized"}
@@ -113,10 +118,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 15,
-    marginBottom: 5,
+    marginBottom: 10,
   },
-  sectionTitle: { fontWeight: "bold", fontSize: 16, color: "#222222" },
-  seeAll: { color: "#26897C", fontSize: 12 },
+  sectionTitle: { fontWeight: "500", fontSize: 18, color: "#222222" },
+  seeAll: { color: "#26897C", fontSize: 13 },
   header: { fontWeight: "bold", fontSize: 16, marginBottom: 10, color: "#333" },
   row: {
     flexDirection: "row",
@@ -126,10 +131,10 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
   },
   col: { flex: 1 },
-  category: { fontWeight: "bold", fontSize: 14 },
-  date: { fontSize: 11, color: "#777" },
+  category: { fontWeight: "500", fontSize: 16,textTransform: "capitalize" },
+  date: { fontSize: 12, color: "#777" },
   description: { fontSize: 12, color: "#555" },
-  amount: { fontWeight: "bold", marginTop: 2 },
+  amount: { fontWeight: "500", marginTop: 2,fontSize:16 },
   income: { color: "green" },
   expense: { color: "red" },
   noData: { textAlign: "center", color: "#777", marginTop: 20 },
