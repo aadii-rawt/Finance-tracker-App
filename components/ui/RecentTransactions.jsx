@@ -14,7 +14,7 @@ const RecentTransactions = () => {
       try {
         if (!user?.uid) return;
 
-        const docRef = doc(db, "transactions", decryptDatauser?.uid);
+        const docRef = doc(db, "transactions", decryptData(user?.uid));
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
