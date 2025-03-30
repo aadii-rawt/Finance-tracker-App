@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import SelectDropdown from "react-native-select-dropdown";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { decryptData } from "@/utils/encryption";
 import { useAuth } from "@/context/AuthContext";
@@ -25,7 +25,7 @@ const AddIncomeExpense = () => {
   const [isRecurring, setIsRecurring] = useState(false);
   const [business, setBusiness] = useState("");
   // console.log(banks);
-  const { user } = useAuth();
+  const { user , setNotification} = useAuth();
 
   const [formData, SetFormData] = useState({
     type: "income",
@@ -44,47 +44,213 @@ const AddIncomeExpense = () => {
     SetFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(formData);
+    if (formData.amount <= 0) {
+      return setNotification({ msg: "Please Enter a valid amount", type: "error" })
+    }
+    if (!formData.type || !formData.amount || !formData.category || !formData.accountName) {
+      return setNotification({ msg: "Please fill all required fields!", type: "error" })
+    }
+
+    try {
+      // setIsSubmiting(true)
+      // Decide which field to update based on the type
+      const fieldName = formData.type === "income" ? "income" : "expense";
+      const docRef = doc(db, "transactions", decryptData(user.uid));
+
+      // Store the transaction with the updated type
+      const encryptedData = formData
+      if (encryptedData.accountName) {
+        const bank = banks.find((bank) => bank.accountName === encryptedData.accountName);
+        if (formData.date >= bank.createDate) {
+          const bankId = banks.find((bank) => bank.accountName === encryptedData.accountName);
+          await updateBankBalance(bankId.accountName, encryptedData.amount, fieldName);
+        }
+
+      }
+
+      console.log(encryptedData);
+
+      const transactionId = crypto.randomUUID();
+      const transactionData = {
+        transactionId,
+        type: formData.type,
+        amount: parseFloat(formData.amount),
+        category: formData.category,
+        date: formatDate(formData.date),
+        description: formData.description,
+        accountName: formData.accountName,
+        isRecurring: formData.isRecurring || false,
+        createdAt: Date.now(),
+        businessName: formData.business,
+      };
+
+      // 🔹 Store transaction in "transactions" collection
+      await setDoc(
+        docRef,
+        {
+          [fieldName]: arrayUnion({
+            ...transactionData
+          }),
+        },
+        { merge: true }
+      );
+
+      
+      const userRef = doc(db, "business_transactions", decryptData(user.uid));
+      const transactionObj = {
+        transactionId: transactionId,
+        type: formData.type === "income" ? "income" : "expense",
+        amount: isNaN(parseFloat(formData.amount)) ? 0 : parseFloat(formData.amount), // Ensures valid number
+        date: formData.date, // Ensure 'date' is in correct format (YYYY-MM-DD)
+        description: formData.description,
+        businessName: formData.business,
+        createdAt: Date.now(), // Firestore timestamp instead of Date.now()
+        accountName: formData.accountName,
+        category: formData.category,
+      };
+
+      console.log(transactionObj);
+      try {
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+          await updateDoc(userRef, {
+            transactions: arrayUnion(transactionObj), // Works unless transactionId already exists
+          });
+        } else {
+          await setDoc(userRef, {
+            transactions: [transactionObj], // Initializes with a new array
+          });
+        }
+      } catch (error) {
+        console.error("Error adding transaction:", error);
+      }
+      
+      if (formData.isRecurring) {
+        const recurringDocRef = doc(db, "recurring_transactions",  decryptData(user.uid));
+        const recurringTransaction = {
+          recurringTransactionId: crypto.randomUUID(),
+          ...transactionData,
+          startDate: formData.date,
+          endDate: formData.endDate || null,
+          recurringType: formData.recurringType,
+          status: "active", // Can be "active", "paused", "cancelled"
+          nextExecution: calculateNextExecution(formData.date, formData.recurringType),
+        };
+
+        await setDoc(recurringDocRef, {
+          recurringTransactions: arrayUnion(recurringTransaction),
+        }, { merge: true });
+      }
+
+      console.log("Transaction saved successfully!");
+      // Optionally reset the form
+      setNotification({ msg: "Transaction Added", type: "success" })
+
+      SetFormData({
+        type: "expense",
+        amount: 0,
+        category: "",
+        date: new Date().toISOString().split("T")[0],
+        description: "",
+        business: "",
+      });
+    } catch (error) {
+      console.error("Error saving transaction:", error);
+    } finally {
+      // setIsSubmiting(false)
+    }
+
+  };
+
+  const updateBankBalance = async (bankId, amount, fieldName) => {
+    // if (!user?.uid) return;
+    const userRef = doc(db, "banks",  decryptData(user.uid));
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      let updatedBanks = docSnap.data().banks || [];
+      updatedBanks = updatedBanks.map((bank) =>
+        bank.accountName === bankId ? { ...bank, initialBalance: fieldName == "income" ? bank.initialBalance + parseFloat(amount) : bank.initialBalance - parseFloat(amount) } : bank
+      );
+      await updateDoc(userRef, { banks: updatedBanks });
+      fetchBanks(); // Refresh bank list after update
+    }
+  };
+
+  const calculateNextExecution = (startDate, recurringType) => {
+    let nextDate = new Date(startDate);
+
+    switch (recurringType) {
+      case "2minutes": // Testing purpose
+        nextDate.setMinutes(nextDate.getMinutes() + 2);
+        break;
+      case "daily":
+        nextDate.setDate(nextDate.getDate() + 1);
+        break;
+      case "weekly":
+        nextDate.setDate(nextDate.getDate() + 7);
+        break;
+      case "monthly":
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        break;
+      case "quarterly":
+        nextDate.setMonth(nextDate.getMonth() + 3);
+        break;
+      case "yearly":
+        nextDate.setFullYear(nextDate.getFullYear() + 1);
+        break;
+    }
+
+    return nextDate.getTime(); // Convert to timestamp
+  };
+
+  const fetchBanks = async () => {
+    if (!user) return;
+    const userRef = doc(db, "banks", decryptData(user.uid));
+    const docSnap = await getDoc(userRef);
+    if (docSnap.exists()) {
+      setBanks(docSnap.data().banks || []);
+    }
+  };
+
+  const fetchCategories = async () => {
+    if (!user?.uid) return;
+
+    const userCategoriesRef = doc(db, "categories", decryptData(user.uid));
+    const unsubscribe = onSnapshot(userCategoriesRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = decryptData(docSnap.data());
+        setCategories(data?.category);
+      }
+    });
+    return () => unsubscribe();
+  };
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (`0${date.getMonth() + 1}`).slice(-2); // Ensures 2 digits
+    const day = (`0${date.getDate()}`).slice(-2); // Ensures 2 digits
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
-    const fetchBanks = async () => {
-      if (!user) return;
-      const userRef = doc(db, "banks", decryptData(user.uid));
-      const docSnap = await getDoc(userRef);
-      if (docSnap.exists()) {
-        setBanks(docSnap.data().banks || []);
-      }
-    };
-
-    const fetchCategories = async () => {
-      if (!user?.uid) return;
-
-      const userCategoriesRef = doc(db, "categories", decryptData(user.uid));
-      const unsubscribe = onSnapshot(userCategoriesRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = decryptData(docSnap.data());
-          setCategories(data?.category);
-        }
-      });
-      return () => unsubscribe();
-    };
     fetchBanks();
     fetchCategories();
   }, [user?.uid]);
 
-  useEffect(() => {
-    console.log("banks", categories);
+  // useEffect(() => {
+  //   console.log("banks", categories);
 
-    const data = categories.map((b) => {
-      if (b.type == formData.type) {
-        return b?.category;
-      }
-    });
-   setCategories(data)
-  }, [user?.uid]);
+  //   const data = categories.map((b) => {
+  //     if (b.type == formData.type) {
+  //       return b?.category;
+  //     }
+  //   });
+  //  setCategories(data)
+  // }, [user?.uid]);
 
   return (
     <ScrollView
@@ -139,8 +305,8 @@ const AddIncomeExpense = () => {
       <Text style={styles.label}>Bank Account</Text>
       <DropDown
         data={banks.map((b) => b?.accountName)}
-                SetFormData={SetFormData}
-        keyName="bank"
+        SetFormData={SetFormData}
+        keyName="accountName"
         placeholder="Select your Bank"
       />
 
@@ -178,13 +344,13 @@ const AddIncomeExpense = () => {
       </TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker
-          value={date}
+          value={formatDate.date}
           mode="date"
           display="default"
           onChange={(event, selectedDate) => {
             const currentDate = selectedDate || date;
             setShowDatePicker(false);
-            setDate(currentDate);
+            SetFormData((prev) =>  ({...prev, date: currentDate}))
           }}
         />
       )}
@@ -194,8 +360,8 @@ const AddIncomeExpense = () => {
       <TextInput
         style={styles.input}
         placeholder="Description (optional)"
-        value={description}
-        onChangeText={setDescription}
+        value={formData?.description}
+        onChangeText={(text) => handleDataChange("description", text)}
       />
 
       {/* Recurring */}
