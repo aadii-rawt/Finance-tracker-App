@@ -9,11 +9,11 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useAuth } from "../context/AuthContext";
-import { db } from "../utils/firebase";
+import { useAuth } from "../../context/AuthContext";
+import { db } from "../../utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { decryptData } from "../utils/encryption";
-import RecentTransactions from "../components/ui/RecentTransactions";
+import { decryptData } from "../../utils/encryption";
+import RecentTransactions from "../../components/ui/RecentTransactions";
 
 export default function Home() {
   const router = useRouter();
@@ -83,7 +83,7 @@ export default function Home() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Good afternoon,</Text>
-          <Text style={styles.name}>{user?.username}</Text>
+          <Text style={styles.name}>{decryptData(user?.username)}</Text>
         </View>
 
         {/* Balance Card */}
@@ -111,7 +111,7 @@ export default function Home() {
       </View>
       </ScrollView>
 
-      <View style={{position : "fixed", bottom : 30, right : 30}}>
+      <View style={{position : "fixed", bottom : 70, right : 20}}>
         <TouchableOpacity onPress={() => router.push("/addIncomeExpense")} style={{backgroundColor : "#26897C", width: 50,height :50, display: "flex",flexDirection : "row", alignItems : 'center',justifyContent : "center", borderRadius : 50, textAlign : "center"}}>
         <Text style={{color: "white", fontWeight : 500,fontSize : 30,textAlign : "center"}}>+</Text>  
         </TouchableOpacity>

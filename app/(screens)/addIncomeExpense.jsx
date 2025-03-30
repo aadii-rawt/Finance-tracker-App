@@ -67,7 +67,6 @@ const AddIncomeExpense = () => {
           const bankId = banks.find((bank) => bank.accountName === encryptedData.accountName);
           await updateBankBalance(bankId.accountName, encryptedData.amount, fieldName);
         }
-
       }
 
       console.log(encryptedData);
