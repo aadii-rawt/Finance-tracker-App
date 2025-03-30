@@ -110,6 +110,12 @@ export default function Home() {
         <RecentTransactions />
       </View>
       </ScrollView>
+
+      <View style={{position : "fixed", bottom : 30, right : 30}}>
+        <TouchableOpacity onPress={() => router.push("/addIncomeExpense")} style={{backgroundColor : "#26897C", width: 50,height :50, display: "flex",flexDirection : "row", alignItems : 'center',justifyContent : "center", borderRadius : 50, textAlign : "center"}}>
+        <Text style={{color: "white", fontWeight : 500,fontSize : 30,textAlign : "center"}}>+</Text>  
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
