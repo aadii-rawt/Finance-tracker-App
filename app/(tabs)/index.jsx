@@ -79,41 +79,61 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Good afternoon,</Text>
-          <Text style={styles.name}>{decryptData(user?.username)}</Text>
-        </View>
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.greeting}>Good afternoon,</Text>
+            <Text style={styles.name}>{decryptData(user?.username)}</Text>
+            <TouchableOpacity onPress={() => router.push("/login")}>
+              <Text style={styles.bell}>🔔</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Balance Card */}
-        <View style={styles.balanceCard}>
-          <Text style={styles.totalText}>Total Balance</Text>
-          <Text style={styles.amount}>₹ {balance.toFixed()}</Text>
-          <View style={styles.balanceRow}>
-            <View>
-              <Text style={styles.label}>Income</Text>
-              <Text style={[styles.income, styles.balanceAmount]}>
-                ₹ {totalIncome.toFixed()}
-              </Text>
+          {/* Balance Card */}
+          <View style={styles.balanceCard}>
+            <Text style={styles.totalText}>Total Balance</Text>
+            <Text style={styles.amount}>₹ {balance.toFixed()}</Text>
+            <View style={styles.balanceRow}>
+              <View>
+                <Text style={styles.label}>Income</Text>
+                <Text style={[styles.income, styles.balanceAmount]}>
+                  ₹ {totalIncome.toFixed()}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.label}>Expenses</Text>
+                <Text style={[styles.expense, styles.balanceAmount]}>
+                  ₹ {totalExpense.toFixed()}
+                </Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.label}>Expenses</Text>
-              <Text style={[styles.expense, styles.balanceAmount]}>
-                ₹ {totalExpense.toFixed()}
-              </Text>
-            </View>
+            cls
           </View>
         </View>
-      </View>
-      <View>
-        <RecentTransactions />
-      </View>
+        <View>
+          <RecentTransactions />
+        </View>
       </ScrollView>
-
-      <View style={{position : "fixed", bottom : 70, right : 20}}>
-        <TouchableOpacity onPress={() => router.push("/addIncomeExpense")} style={{backgroundColor : "#26897C", width: 50,height :50, display: "flex",flexDirection : "row", alignItems : 'center',justifyContent : "center", borderRadius : 50, textAlign : "center"}}>
-        <Text style={{color: "white", fontWeight : 500,fontSize : 30,textAlign : "center"}}>+</Text>  
+      <View style={{ position: "absolute", bottom: 40, right: 20 }}>
+        <TouchableOpacity
+        onPress={() => router.push("/add")}
+          style={{
+            backgroundColor: "#26897C",
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            alignItems: "center",
+            justifyContent: "center",
+            elevation: 5, // Android shadow
+            shadowColor: "#000", // iOS shadow
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+          }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 30 }}>
+            +
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

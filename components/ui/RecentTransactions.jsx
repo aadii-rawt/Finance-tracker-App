@@ -66,9 +66,9 @@ const RecentTransactions = () => {
                 <View
                   style={{
                     backgroundColor: "gray",
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: 10,
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
                     display : "flex",
                     alignItems : 'center',
                     justifyContent: "center"
@@ -76,9 +76,9 @@ const RecentTransactions = () => {
                 >
                   <Text style={{color : "white", fontSize : 24, textTransform : "capitalize"}}> {item.category[0] || "Uncategorized"}</Text>
                 </View>
-                <View style={styles.col}>
-                  <Text style={styles.category}>
-                    {item.category || "Uncategorized"}
+                <View >
+                  <Text style={styles.amount}>
+                     {item.category}
                   </Text>
                   <Text style={styles.date}>{item.date}</Text>
                 </View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
   },
   col: { flex: 1 },
-  category: { fontWeight: "500", fontSize: 16,textTransform: "capitalize" },
+  category: { fontWeight: 500,color: "black", fontSize: 16,textTransform: "capitalize" },
   date: { fontSize: 12, color: "#777" },
   description: { fontSize: 12, color: "#555" },
   amount: { fontWeight: "500", marginTop: 2,fontSize:16 },

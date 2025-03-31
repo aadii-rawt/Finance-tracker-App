@@ -39,18 +39,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           {/* <Stack.Screen name="index" options={{ headerShown: false }} /> */}
           <Stack.Screen name="login" />
-          <Stack.Screen
-            name="addIncomeExpense"
-            options={({ navigation }) => ({
-              title: "Add Income and Expense",
-              headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                  {/* <Ionicons name="arrow-back" size={24} color="black" /> */} +
-                </TouchableOpacity>
-              ),
-            })}
-          />
-
+          <Stack.Screen name="add" />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
