@@ -84,7 +84,7 @@ export default function Home() {
           <View style={styles.header}>
             <Text style={styles.greeting}>Good afternoon,</Text>
             <Text style={styles.name}>{decryptData(user?.username)}</Text>
-            <TouchableOpacity onPress={() => router.push("/login")}>
+            <TouchableOpacity onPress={() => router.push("/welcome")}>
               <Text style={styles.bell}>🔔</Text>
             </TouchableOpacity>
           </View>
@@ -107,7 +107,7 @@ export default function Home() {
                 </Text>
               </View>
             </View>
-            cls
+            
           </View>
         </View>
         <View>

@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { db } from "../../utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
+import { Link } from "expo-router";
 
 const RecentTransactions = () => {
   const { user } = useAuth();
@@ -54,7 +55,7 @@ const RecentTransactions = () => {
     <View style={styles.container}>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Transactions History</Text>
-        <Text style={styles.seeAll}>See all</Text>
+        <Link href="/transactionhistory" style={styles.seeAll}>See all</Link>
       </View>
       {transactions.length > 0 ? (
         <FlatList
