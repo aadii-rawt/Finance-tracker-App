@@ -88,6 +88,7 @@ const TransactionHistory = () => {
                 style={{
                   backgroundColor: "#EFEFEF",
                   padding: 5,
+                  paddingHorizontal : 15,
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
@@ -99,17 +100,17 @@ const TransactionHistory = () => {
                   <Text style={styles.summary}>
                     Income:{" "}
                     <Text
-                      style={{ color: "green", marginLeft: 5, fontWeight: 500 }}
+                      style={{ color: "green", marginLeft: 5, fontWeight: 500,fontSize : 16 }}
                     >
-                      ₹ {groupedData[month].income.toFixed()}{" "}
+                      + ₹{groupedData[month].income.toFixed()}{" "}
                     </Text>
                   </Text>
                   <Text style={styles.summary}>
                     Expense:{" "}
                     <Text
-                      style={{ color: "red", marginLeft: 5, fontWeight: 500 }}
+                      style={{ color: "red", marginLeft: 5, fontWeight: 500,fontSize : 16, marginTop : 5 }}
                     >
-                      ₹ {groupedData[month].expense.toFixed()}
+                      - ₹{groupedData[month].expense.toFixed()}
                     </Text>
                   </Text>
                 </View>
@@ -123,6 +124,7 @@ const TransactionHistory = () => {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: 5,
+                    paddingHorizontal : 15
                   }}
                 >
                   <View
@@ -219,7 +221,7 @@ const styles = StyleSheet.create({
     color: "#777",
   },
   amount: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   income: { color: "green" },

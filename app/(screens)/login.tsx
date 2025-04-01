@@ -59,7 +59,7 @@ const Login = () => {
 
       // Navigate to home
       router.push("/");
-    } catch (err) {
+    } catch (err : any) {
       console.log("Login Error:", err);
       if (err.code === "auth/user-not-found") {
         setError("No account found with this email.");
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
-    // paddingHorizontal: 20,
+    paddingHorizontal: 5,
   },
   card: {
     width: "100%",
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     // elevation: 5,
   },
   title: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#195A5A",
     marginBottom: 5,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#6b7280",
     marginBottom: 20,
-    fontSize: 12,
+    fontSize: 16,
   },
   input: {
     backgroundColor: "#f3f4f6",
@@ -167,6 +167,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 12,
+    borderWidth: 1,
+    fontSize : 18,
+    borderColor: "#e5e7eb",
   },
   button: {
     backgroundColor: "#26897C",
@@ -178,12 +181,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize : 18,
   },
   bottomText: {
     color: "#26897C",
     textAlign: "center",
     marginTop: 20,
-    fontSize: 12,
+    fontSize: 16,
   },
   orText: {
     textAlign: "center",

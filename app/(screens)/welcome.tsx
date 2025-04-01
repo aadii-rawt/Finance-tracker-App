@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9F9F9',
+    paddingHorizontal : 10,
   },
   imageContainer: {
     flex: 2,
@@ -54,22 +55,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    padding: 20,
+    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#195A5A',
     textAlign: 'center',
     marginBottom: 30,
   },
   getStartedButton: {
+    width: "100%",
     backgroundColor: '#26897C',
     paddingVertical: 15,
-    paddingHorizontal: 80,
     borderRadius: 30,
+    textAlign: "center",
     marginBottom: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -80,9 +82,11 @@ const styles = StyleSheet.create({
   getStartedText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: 18,
+    textAlign : "center"
   },
   loginText: {
+    fontSize : 16,
     color: '#888',
     marginTop: 5,
   },
