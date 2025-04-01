@@ -1,42 +1,56 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
 import moment from "moment"; 
+import { useNavigation } from "expo-router";
 const alphabetColors = {
-    a: "#FF5733",
-    b: "#33FF57",
-    c: "#3357FF",
-    d: "#FF33A8",
-    e: "#A833FF",
-    f: "#33FFF5",
-    g: "#FF8C33",
-    h: "#8CFF33",
-    i: "#338CFF",
-    j: "#F533FF",
-    k: "#FF3333",
-    l: "#33FF8C",
-    m: "#FFAF33",
-    n: "#33A8FF",
-    o: "#A8FF33",
-    p: "#AF33FF",
-    q: "#FF33F5",
-    r: "#33FFA8",
-    s: "#FFA833",
-    t: "#33AFF5",
-    u: "#F5FF33",
-    v: "#FF33AF",
-    w: "#33F5FF",
-    x: "#FF5733",
-    y: "#57FF33",
-    z: "#5733FF"
-  };
-  
+  a: "#E53935", // Dark Red
+  b: "#D81B60", // Dark Pink
+  c: "#8E24AA", // Dark Purple
+  d: "#5E35B1", // Dark Deep Purple
+  e: "#3949AB", // Dark Indigo
+  f: "#1E88E5", // Dark Blue
+  g: "#039BE5", // Dark Light Blue
+  h: "#00ACC1", // Dark Cyan
+  i: "#00897B", // Dark Teal
+  j: "#43A047", // Dark Green
+  k: "#7CB342", // Dark Light Green
+  l: "#C0CA33", // Dark Lime
+  m: "#FDD835", // Dark Yellow
+  n: "#FFB300", // Dark Amber
+  o: "#FB8C00", // Dark Orange
+  p: "#F4511E", // Dark Deep Orange
+  q: "#6D4C41", // Dark Brown
+  r: "#757575", // Dark Grey
+  s: "#546E7A", // Dark Blue Grey
+  t: "#D32F2F", // Darker Red
+  u: "#C2185B", // Darker Pink
+  v: "#7B1FA2", // Darker Purple
+  w: "#512DA8", // Darker Deep Purple
+  x: "#303F9F", // Darker Indigo
+  y: "#1976D2", // Darker Blue
+  z: "#0288D1"  // Darker Light Blue
+};
+
+
+
 const TransactionHistory = () => {
   const { user } = useAuth();
   const [groupedData, setGroupedData] = useState({});
+
+
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: "Transaction History", 
+    });
+  }, [navigation]);
+
+
 
   useEffect(() => {
     const fetchTransactions = async () => {

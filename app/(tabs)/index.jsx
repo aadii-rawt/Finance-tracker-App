@@ -76,14 +76,27 @@ export default function Home() {
     fetchTransactions();
   }, [user]);
 
+  const [isReady, setIsReady] = useState(false);
+
+  // useEffect(() => {
+  //     setIsReady(true); // Wait until layout is mounted
+  // }, []);
+  
+  // useEffect(() => {
+  //     if (!isReady) return; // Don't navigate until ready
+  //     if (!user) {
+  //         router.replace("/welcome");
+  //     }
+  // }, [user, isReady]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView>
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.greeting}>Good afternoon,</Text>
-            <Text style={styles.name}>{decryptData(user?.username)}</Text>
+            {/* <Text style={styles.greeting}>Good afternoon,</Text> */}
+            {/* <Text style={styles.name}>{decryptData(user?.username)}</Text> */}
             <TouchableOpacity onPress={() => router.push("/welcome")}>
               <Text style={styles.bell}>🔔</Text>
             </TouchableOpacity>
@@ -107,7 +120,6 @@ export default function Home() {
                 </Text>
               </View>
             </View>
-            
           </View>
         </View>
         <View>
@@ -116,7 +128,7 @@ export default function Home() {
       </ScrollView>
       <View style={{ position: "absolute", bottom: 40, right: 20 }}>
         <TouchableOpacity
-        onPress={() => router.push("/addtransaction")}
+          onPress={() => router.push("/addtransaction")}
           style={{
             backgroundColor: "#26897C",
             width: 60,
@@ -145,7 +157,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 10,
   },
-  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 20 },
+  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 10 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -160,16 +172,16 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 20,
   },
-  totalText: { color: "#fff" },
+  totalText: { color: "#fff",fontSize : 16,},
   amount: {
-    fontSize: 28,
+    fontSize: 34,
     color: "#fff",
     fontWeight: "bold",
     marginVertical: 5,
   },
-  balanceRow: { flexDirection: "row", justifyContent: "space-between" },
-  label: { color: "#ccc", fontSize: 12 },
-  balanceAmount: { fontWeight: "bold", marginTop: 5 },
+  balanceRow: { flexDirection: "row", justifyContent: "space-between",marginTop : 10, },
+  label: { color: "#ccc", fontSize: 16 },
+  balanceAmount: { fontWeight: "bold", marginTop: 5,fontSize : 24 },
   income: { color: "#00e676" },
   expense: { color: "#ff1744" },
   section: {

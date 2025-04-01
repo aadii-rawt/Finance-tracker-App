@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../utils/firebase';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { useRouter } from 'expo-router';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthContext = createContext();
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
             // await AsyncStorage.setItem('user', JSON.stringify(userData)); // persist user
           } else {
-            setUser(null);
+          
             // await AsyncStorage.removeItem('user');
           }
           setLoading(false);

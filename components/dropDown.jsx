@@ -46,6 +46,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginTop: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
   dropdownButtonTxtStyle: {
     flex: 1,
@@ -69,12 +71,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 10,
   },
   dropdownItemTxtStyle: {
     flex: 1,
     fontSize: 16,
     color: "#151E26",
+    textTransform: "capitalize",
   },
   dropdownItemIconStyle: {
     fontSize: 28,

@@ -30,19 +30,6 @@ export default function More() {
 
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity>
-          <Ionicons name="notifications-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
-
-      {/* Avatar & Name */}
       <View style={styles.avatarSection}>
         <Image
          source={require('../../assets/images/profile.png')}

@@ -52,9 +52,6 @@ const styles = StyleSheet.create({
   },
   bottomCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
