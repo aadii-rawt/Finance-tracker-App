@@ -119,10 +119,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 15,
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  sectionTitle: { fontWeight: "500", fontSize: 18, color: "#222222" },
-  seeAll: { color: "#26897C", fontSize: 13 },
+  sectionTitle: { fontWeight: "500", fontSize: 20, color: "#222222" },
+  seeAll: { color: "#26897C", fontSize: 16 },
   header: { fontWeight: "bold", fontSize: 16, marginBottom: 10, color: "#333" },
   row: {
     flexDirection: "row",

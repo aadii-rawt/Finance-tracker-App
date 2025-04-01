@@ -116,7 +116,7 @@ export default function Home() {
       </ScrollView>
       <View style={{ position: "absolute", bottom: 40, right: 20 }}>
         <TouchableOpacity
-        onPress={() => router.push("/add")}
+        onPress={() => router.push("/addtransaction")}
           style={{
             backgroundColor: "#26897C",
             width: 60,

@@ -41,6 +41,7 @@ export default function RootLayout() {
           {/* <Stack.Screen name="login" /> */}
           {/* <Stack.Screen name="(screens)/add" /> */}
           <Stack.Screen name="(screens)/welcome" options={{headerShown : false}} />
+          {/* <Stack.Screen name="(screens)/addtransaction" options={{headerShown : false}} /> */}
           <Stack.Screen name="(screens)/login" options={{headerShown : false}} />
           <Stack.Screen name="(screens)/signup" options={{headerShown : false}} />
           <Stack.Screen name="+not-found" />

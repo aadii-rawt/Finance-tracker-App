@@ -6,17 +6,18 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
+  SafeAreaView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import SelectDropdown from "react-native-select-dropdown";
+// import SelectDropdown from "react-native-select-dropdown";
 import { arrayUnion, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/utils/firebase";
-import { decryptData } from "@/utils/encryption";
-import { useAuth } from "@/context/AuthContext";
+import { db } from "../../utils/firebase";
+import { decryptData } from "../../utils/encryption";
+import { useAuth } from "../../context/AuthContext";
 import DropDown from "../../components/dropDown";
 
-const AddIncomeExpense = () => {
+const Create = () => {
   const [type, setType] = useState("income");
   const [categories, setCategories] = useState([]);
   const [description, setDescription] = useState("");
@@ -252,10 +253,9 @@ const AddIncomeExpense = () => {
   // }, [user?.uid]);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 50 }}
-    >
+   <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView >
+      <View style={styles.container}>
       <Text style={styles.title}>
         Add {type === "income" ? "Income" : "Expense"}
       </Text>
@@ -375,22 +375,24 @@ const AddIncomeExpense = () => {
           Create Transaction
         </Text>
       </TouchableOpacity>
+   </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
-export default AddIncomeExpense;
+export default Create;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    padding: 20,
+    // flex: 1,
+    // backgroundColor: "#f5f5f5",
+    // padding: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   label: {
     marginTop: 10,
