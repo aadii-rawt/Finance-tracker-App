@@ -1,10 +1,11 @@
 import { Alert, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { signOut } from 'firebase/auth';
-import { auth } from '../../utils/firebase'; // adjust the path
+import { auth } from '../../utils/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons, FontAwesome, Entypo } from '@expo/vector-icons';
-import {decryptData  } from "../../utils/encryption";
+import { decryptData } from "../../utils/encryption";
+
 export default function More() {
   const { user, setUser } = useAuth();
   const router = useRouter();
@@ -30,65 +31,63 @@ export default function More() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Profile Section */}
       <View style={styles.avatarSection}>
         <Image
-         source={require('../../assets/images/profile.png')}
+          source={require('../../assets/images/profile.png')}
           style={styles.avatar}
         />
         <Text style={styles.name}>{decryptData(user?.username) || 'Unknown User'}</Text>
-        {/* <Text style={styles.username}>@{user?.username?.toLowerCase() || 'username'}</Text> */}
       </View>
 
-      {/* Menu List */}
-      <View style={styles.menu}>
-        <MenuItem icon={<FontAwesome name="diamond" size={20} color="#26897C" />} label="Invite Friends" />
-        <MenuItem icon={<Ionicons name="person" size={20} color="#26897C" />} label="Account info" />
-        <MenuItem icon={<MaterialIcons name="person-outline" size={20} color="#26897C" />} label="Personal profile" />
-        <MenuItem icon={<Ionicons name="mail-outline" size={20} color="#26897C" />} label="Message center" />
-        <MenuItem icon={<Ionicons name="lock-closed-outline" size={20} color="#26897C" />} label="Login and security" />
-        <MenuItem icon={<Entypo name="lock" size={20} color="#26897C" />} label="Data and privacy" />
-
-        {/* Logout */}
-        <TouchableOpacity style={styles.logout} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
+      {/* Grid Menu */}
+      <View style={styles.grid}>
+        <GridItem icon={<MaterialIcons name="person-outline" size={24} color="#26897C" />} label="Personal Profile" />
+        <GridItem icon={<FontAwesome name="gear" size={24} color="#26897C" />} label="Invite Friends" />
+        <GridItem icon={<FontAwesome name="bank" size={24} color="#26897C" />} label="Invite Friends" />
+        {/* <GridItem icon={<Ionicons name="person" size={24} color="#26897C" />} label="Account Info" /> */}
+        <GridItem icon={<Ionicons name="mail-outline" size={24} color="#26897C" />} label="Message Center" />
+        <GridItem icon={<Ionicons name="lock-closed-outline" size={24} color="#26897C" />} label="Login & Security" />
+        {/* <GridItem icon={<Entypo name="lock" size={24} color="#26897C" />} label="Data & Privacy" /> */}
+        <GridItem icon={<MaterialIcons name="logout" size={24} color="red" />} label="Logout" onPress={handleLogout} />
       </View>
     </SafeAreaView>
   );
 }
 
-const MenuItem = ({ icon, label }) => (
-  <TouchableOpacity style={styles.menuItem}>
+const GridItem = ({ icon, label, onPress }) => (
+  <TouchableOpacity style={styles.gridItem} onPress={onPress}>
     {icon}
-    <Text style={styles.menuLabel}>{label}</Text>
+    <Text style={styles.gridLabel}>{label}</Text>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: {
-    backgroundColor: '#26897C',
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '600' },
-  avatarSection: { alignItems: 'center', marginTop: 20 },
-  avatar: { width: 90, height: 90, borderRadius: 40, borderWidth: 3, borderColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff', alignItems : "center", justifyContent : "center" },
+  avatarSection: { alignItems: 'center', marginVertical: 50 },
+  avatar: { width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: '#26897C' },
   name: { fontSize: 18, fontWeight: '700', marginTop: 10 },
-  username: { color: '#888', fontSize: 13 },
-  menu: { marginTop: 20, paddingHorizontal: 20 },
-  menuItem: {
+  grid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 0.5,
-    borderColor: '#ddd',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    gap: 20
   },
-  menuLabel: { marginLeft: 15, fontSize: 16 },
-  logout: { marginTop: 30, alignItems: 'center' },
-  logoutText: { color: 'red', fontWeight: '600', fontSize: 16 },
+  gridItem: {
+    width: '28%',
+    marginBottom : 20,
+    // aspectRatio: 1,
+    // backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // elevation: 2,
+  },
+  gridLabel: {
+    marginTop: 8,
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '500',
+  },
 });

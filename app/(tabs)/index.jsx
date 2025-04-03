@@ -78,16 +78,16 @@ export default function Home() {
 
   const [isReady, setIsReady] = useState(false);
 
-  // useEffect(() => {
-  //     setIsReady(true); // Wait until layout is mounted
-  // }, []);
+  useEffect(() => {
+      setIsReady(true); 
+  }, []);
   
-  // useEffect(() => {
-  //     if (!isReady) return; // Don't navigate until ready
-  //     if (!user) {
-  //         router.replace("/welcome");
-  //     }
-  // }, [user, isReady]);
+  useEffect(() => {
+      if (!isReady) return; 
+      if (!user) {
+          router.replace("/welcome");
+      }
+  }, [user, isReady]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
