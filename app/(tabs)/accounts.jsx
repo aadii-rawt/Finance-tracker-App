@@ -6,20 +6,20 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
-  Switch,
+  ActivityIndicator,
 } from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 import { decryptData } from "../../utils/encryption";
 import { useAuth } from "../../context/AuthContext";
-import { ActivityIndicator } from "react-native";
 import CreateBankModal from "../../components/createBankAccount";
 
-const Account = () => {
+const Account = ({ navigation }) => {
   const { user, setNotification } = useAuth();
   const [banks, setBanks] = useState([]);
   const [defaultBank, setDefaultBank] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false); 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,34 +84,48 @@ const Account = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Bank Accounts</Text>
+    <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        {/* <View style={styles.topRow}>
+          <Text style={styles.title}>Account</Text>
+          
+        </View> */}
 
-      {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#26897C"
-          style={{ marginTop: 50 }}
-        />
-      ) : (
-        <>
-          <TouchableOpacity
-            style={{
-              marginTop: 20,
-              backgroundColor: "#26897C",
-              padding: 15,
-              borderRadius: 10,
-              color: "white",
-              alignItems: "center",
-            }}
-            onPress={() => setShowCreateModal(true)}
-          >
-            <Text style={{ fontSize: 20, color: "white" }}>+ Add Bank</Text>
-          </TouchableOpacity>
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <View>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setShowCreateModal(true)}
+            >
+              <Ionicons name="add" size={34} color="#26897C" />
+            </TouchableOpacity>
+            <Text style={{color : "white",  textAlign: "center", marginTop : 10,fontSize : 16}}>Add</Text>
+          </View>
 
-          {banks.map((bank, index) => (
+          <View>
+            <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
+              <Ionicons name="send" size={28} color="#26897C" />
+            </TouchableOpacity>
+            <Text style={{color : "white",  textAlign: "center", marginTop : 10,fontSize : 16}}>Transfer</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Bank List */}
+      <ScrollView style={{ padding: 20 }}>
+        <Text style={styles.heading}>Bank Accounts</Text>
+
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#26897C"
+            style={{ marginTop: 50 }}
+          />
+        ) : (
+          banks.map((bank, index) => (
             <View key={index} style={styles.bankCard}>
-              {/* Bank Details */}
               <View>
                 <Text style={styles.bankName}>{bank.accountName}</Text>
                 <Text style={styles.accountNumber}>{bank.accountNumber}</Text>
@@ -120,11 +134,8 @@ const Account = () => {
                   {bank.accountType} Account
                 </Text>
               </View>
-              {/* Actions */}
               <View style={{ alignItems: "flex-end" }}>
-                <TouchableOpacity
-                  onPress={() => handleDelete(bank.accountName)}
-                >
+                <TouchableOpacity onPress={() => deleteBank(bank)}>
                   <Text style={{ color: "red", fontSize: 12 }}>Delete</Text>
                 </TouchableOpacity>
 
@@ -133,7 +144,7 @@ const Account = () => {
                     styles.defaultButton,
                     defaultBank === bank.accountName && styles.activeDefault,
                   ]}
-                  onPress={() => handleSetDefault(bank.accountName)}
+                  onPress={() => setAsDefault(bank.accountName)}
                 >
                   <Text
                     style={{
@@ -147,26 +158,61 @@ const Account = () => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              
-              {showCreateModal && (
-                <CreateBankModal
-                  visible={showCreateModal}
-                  onClose={() => setShowCreateModal(false)}
-                  fetchBanks={fetchBanks}
-                />
-              )}
             </View>
-          ))}
-        </>
+          ))
+        )}
+      </ScrollView>
+
+      {showCreateModal && (
+        <CreateBankModal
+          visible={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          fetchBanks={fetchBanks}
+        />
       )}
-    </ScrollView>
+    </View>
   );
 };
 
 export default Account;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
+  headerContainer: {
+    backgroundColor: "#26897C",
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingHorizontal: 50,
+    paddingTop: 100,
+    paddingBottom: 50,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 50,
+    marginTop: 20,
+  },
+  actionButton: {
+    backgroundColor: "#fff",
+    borderRadius: 50,
+    // padding: 15,
+    width : 60,
+    height : 60,
+    elevation: 3,
+  display : "flex",
+  flexDirection : "row",
+  alignItems : "center",
+  justifyContent : "center"
+  },
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 15 },
   bankCard: {
     flexDirection: "row",
@@ -178,11 +224,19 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bankName: { fontSize: 16, fontWeight: "bold", textTransform: "capitalize" },
-  addButton: {
-    marginTop: 20,
+  accountNumber: { fontSize: 14, color: "#555" },
+  balance: { fontSize: 14, marginTop: 5, fontWeight: "600" },
+  accountType: { fontSize: 12, color: "#888" },
+  defaultButton: {
+    borderWidth: 1,
+    borderColor: "#000",
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginTop: 5,
+  },
+  activeDefault: {
     backgroundColor: "#26897C",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
+    borderColor: "#26897C",
   },
 });

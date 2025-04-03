@@ -1,27 +1,21 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import { LineChart } from "react-native-chart-kit";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 import { decryptData } from "../../utils/encryption";
 import { useAuth } from "../../context/AuthContext";
 import moment from "moment";
+import { VictoryChart, VictoryBar, VictoryAxis, VictoryGroup } from "victory-native";
 
 const Stats = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
-  const [filter, setFilter] = useState("month"); // week, month, year
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [{ data: [] }],
-  });
+  const [filter, setFilter] = useState("month");
+  const [incomeData, setIncomeData] = useState([]);
+  const [expenseData, setExpenseData] = useState([]);
+  const [labels, setLabels] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -36,8 +30,6 @@ const Stats = () => {
           ...incomes.map((t) => ({ ...t, type: "income" })),
           ...expenses.map((t) => ({ ...t, type: "expense" })),
         ];
-        console.log(all);
-        
         setTransactions(all);
       }
     };
@@ -50,52 +42,60 @@ const Stats = () => {
 
   const processChartData = () => {
     if (!transactions || transactions.length === 0) {
-        setChartData({ labels: ['No Data'], datasets: [{ data: [0] }] });
-        return;
+      setIncomeData([]);
+      setExpenseData([]);
+      setLabels([]);
+      setTotalIncome(0);
+      setTotalExpense(0);
+      return;
     }
 
-    let filtered = [];
     const today = moment();
+    let filtered = [];
 
-    if (filter === 'week') {
-        filtered = transactions.filter(tx => moment(tx.date).isAfter(today.clone().subtract(7, 'days')));
-    } else if (filter === 'month') {
-        filtered = transactions.filter(tx => moment(tx.date).isSame(today, 'month'));
-    } else if (filter === 'year') {
-        filtered = transactions.filter(tx => moment(tx.date).isSame(today, 'year'));
-    }
-
-    if (filtered.length === 0) {
-        setChartData({ labels: ['No Data'], datasets: [{ data: [0] }] });
-        return;
+    if (filter === "week") {
+      filtered = transactions.filter((tx) => moment(tx.date).isAfter(today.clone().subtract(7, "days")));
+    } else if (filter === "month") {
+      filtered = transactions.filter((tx) => moment(tx.date).isSame(today, "month"));
+    } else if (filter === "year") {
+      filtered = transactions.filter((tx) => moment(tx.date).isSame(today, "year"));
     }
 
     const grouped = {};
+    let incomeSum = 0;
+    let expenseSum = 0;
 
-    filtered.forEach(tx => {
-        const date = moment(tx.date).format('DD MMM');
-        if (!grouped[date]) grouped[date] = 0;
-        grouped[date] += tx.type === 'income' ? tx.amount : -tx.amount;
+    filtered.forEach((tx) => {
+      const day = moment(tx.date).format("ddd");
+      if (!grouped[day]) grouped[day] = { income: 0, expense: 0 };
+      if (tx.type === "income") {
+        grouped[day].income += tx.amount;
+        incomeSum += tx.amount;
+      } else {
+        grouped[day].expense += tx.amount;
+        expenseSum += tx.amount;
+      }
     });
 
-    const labels = Object.keys(grouped);
-    const data = Object.values(grouped);
+    const sortedDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const income = [];
+    const expense = [];
 
-    setChartData({
-        labels: labels.length > 0 ? labels : ['No Data'],
-        datasets: [{ data: data.length > 0 ? data : [0] }]
+    sortedDays.forEach((day) => {
+      income.push({ x: day, y: grouped[day]?.income || 0 });
+      expense.push({ x: day, y: grouped[day]?.expense || 0 });
     });
-};
 
-
-
+    setLabels(sortedDays);
+    setIncomeData(income);
+    setExpenseData(expense);
+    setTotalIncome(incomeSum);
+    setTotalExpense(expenseSum);
+  };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 30 }}
-    >
-      <Text style={styles.heading}>Transaction Analytics</Text>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
+      <Text style={styles.heading}>Statistics</Text>
       <View style={styles.filterRow}>
         {["week", "month", "year"].map((f) => (
           <TouchableOpacity
@@ -103,33 +103,24 @@ const Stats = () => {
             onPress={() => setFilter(f)}
             style={[styles.filterButton, filter === f && styles.activeFilter]}
           >
-            <Text style={filter === f && { color: "#fff" }}>
-              {f.toUpperCase()}
-            </Text>
+            <Text style={filter === f ? { color: "#fff" } : {}}>{f.toUpperCase()}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <LineChart
-    data={{
-      labels: chartData.labels,
-      datasets: chartData.datasets,   // ✅ Use datasets directly
-    }}
-    width={Dimensions.get("window").width - 30}
-    height={220}
-    // formatYLabel={(value) => `₹${value}`}
-    formatYLabel={(value) => `${parseFloat(value)}`}
+      <View style={styles.cardsRow}>
+        <View style={styles.card}><Text>Total Income: ₹{totalIncome}</Text></View>
+        <View style={styles.card}><Text>Total Expense: ₹{totalExpense}</Text></View>
+      </View>
 
-    chartConfig={{
-      backgroundColor: "#ffffff",
-      backgroundGradientFrom: "#ffffff",
-      backgroundGradientTo: "#ffffff",
-      decimalPlaces: 0,
-      color: (opacity = 1) => `rgba(0, 128, 128, ${opacity})`,
-      style: { borderRadius: 16 },
-    }}
-    style={{ marginVertical: 20, borderRadius: 16 }}
-/>
+      <VictoryChart width={Dimensions.get("window").width - 20} height={250} domainPadding={{ x: 20 }}>
+        <VictoryAxis />
+        <VictoryAxis dependentAxis tickFormat={(tick) => `₹${tick}`} />
+        <VictoryGroup offset={15}>
+          <VictoryBar data={incomeData} style={{ data: { fill: "#4CAF50" } }} />
+          <VictoryBar data={expenseData} style={{ data: { fill: "#F44336" } }} />
+        </VictoryGroup>
+      </VictoryChart>
     </ScrollView>
   );
 };
@@ -137,13 +128,11 @@ const Stats = () => {
 export default Stats;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5", padding: 15 },
+  container: { flex: 1, backgroundColor: "#fff", padding: 15 },
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
-  filterRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 10,
-  },
+  filterRow: { flexDirection: "row", justifyContent: "space-around", marginVertical: 10 },
   filterButton: { padding: 10, borderRadius: 8, backgroundColor: "#ddd" },
   activeFilter: { backgroundColor: "#26897C" },
+  cardsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
+  card: { flex: 1, backgroundColor: "#f9f9f9", padding: 10, borderRadius: 8, marginHorizontal: 5, alignItems: "center" },
 });

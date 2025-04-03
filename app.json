@@ -1,13 +1,18 @@
 {
   "expo": {
-    "name": "Finance-tracker",
-    "slug": "Finance-tracker",
+    "name": "Moneylyst",
+    "slug": "Moneylyst",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+   "splash": {
+      "image": "./assets/SplashScreen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true
     },

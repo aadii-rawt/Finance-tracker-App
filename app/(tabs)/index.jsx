@@ -14,6 +14,7 @@ import { db } from "../../utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
 import RecentTransactions from "../../components/ui/RecentTransactions";
+import AppSafeArea from "../../components/AppSafeArea";
 
 export default function Home() {
   const router = useRouter();
@@ -90,8 +91,8 @@ export default function Home() {
   }, [user, isReady]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView>
+    <AppSafeArea>
+      <ScrollView style={{backgroundColor : "white"}}>
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
@@ -122,7 +123,7 @@ export default function Home() {
             </View>
           </View>
         </View>
-        <View>
+        <View style={{backgroundColor : "white"}}>
           <RecentTransactions />
         </View>
       </ScrollView>
@@ -148,16 +149,16 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+      </AppSafeArea>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    paddingTop: 10,
-  },
-  container: { flex: 1, backgroundColor: "#f3f4f6", padding: 10 },
+  // safeArea: {
+  //   flex: 1,
+  //   paddingTop: 10,
+  // },
+  container: { flex: 1, backgroundColor: "white", padding: 10 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
