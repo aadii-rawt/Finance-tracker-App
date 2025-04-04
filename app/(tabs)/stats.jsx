@@ -5,15 +5,17 @@ import { db } from "../../utils/firebase";
 import { decryptData } from "../../utils/encryption";
 import { useAuth } from "../../context/AuthContext";
 import moment from "moment";
-import { VictoryChart, VictoryBar, VictoryAxis, VictoryGroup } from "victory-native";
+import { BarChart } from "react-native-chart-kit";
+
+const screenWidth = Dimensions.get("window").width - 30;
 
 const Stats = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState("month");
+  const [chartLabels, setChartLabels] = useState([]);
   const [incomeData, setIncomeData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
-  const [labels, setLabels] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
 
@@ -42,9 +44,9 @@ const Stats = () => {
 
   const processChartData = () => {
     if (!transactions || transactions.length === 0) {
-      setIncomeData([]);
-      setExpenseData([]);
-      setLabels([]);
+      setChartLabels(["No Data"]);
+      setIncomeData([0]);
+      setExpenseData([0]);
       setTotalIncome(0);
       setTotalExpense(0);
       return;
@@ -66,27 +68,22 @@ const Stats = () => {
     let expenseSum = 0;
 
     filtered.forEach((tx) => {
-      const day = moment(tx.date).format("ddd");
-      if (!grouped[day]) grouped[day] = { income: 0, expense: 0 };
+      const label = moment(tx.date).format("DD MMM");
+      if (!grouped[label]) grouped[label] = { income: 0, expense: 0 };
       if (tx.type === "income") {
-        grouped[day].income += tx.amount;
+        grouped[label].income += tx.amount;
         incomeSum += tx.amount;
       } else {
-        grouped[day].expense += tx.amount;
+        grouped[label].expense += tx.amount;
         expenseSum += tx.amount;
       }
     });
 
-    const sortedDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const income = [];
-    const expense = [];
+    const labels = Object.keys(grouped);
+    const income = labels.map((label) => grouped[label].income);
+    const expense = labels.map((label) => grouped[label].expense);
 
-    sortedDays.forEach((day) => {
-      income.push({ x: day, y: grouped[day]?.income || 0 });
-      expense.push({ x: day, y: grouped[day]?.expense || 0 });
-    });
-
-    setLabels(sortedDays);
+    setChartLabels(labels);
     setIncomeData(income);
     setExpenseData(expense);
     setTotalIncome(incomeSum);
@@ -96,6 +93,7 @@ const Stats = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
       <Text style={styles.heading}>Statistics</Text>
+
       <View style={styles.filterRow}>
         {["week", "month", "year"].map((f) => (
           <TouchableOpacity
@@ -109,18 +107,52 @@ const Stats = () => {
       </View>
 
       <View style={styles.cardsRow}>
-        <View style={styles.card}><Text>Total Income: ₹{totalIncome}</Text></View>
-        <View style={styles.card}><Text>Total Expense: ₹{totalExpense}</Text></View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total Income</Text>
+          <Text style={styles.cardValue}>₹{totalIncome}</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total Expense</Text>
+          <Text style={styles.cardValue}>₹{totalExpense}</Text>
+        </View>
       </View>
 
-      <VictoryChart width={Dimensions.get("window").width - 20} height={250} domainPadding={{ x: 20 }}>
-        <VictoryAxis />
-        <VictoryAxis dependentAxis tickFormat={(tick) => `₹${tick}`} />
-        <VictoryGroup offset={15}>
-          <VictoryBar data={incomeData} style={{ data: { fill: "#4CAF50" } }} />
-          <VictoryBar data={expenseData} style={{ data: { fill: "#F44336" } }} />
-        </VictoryGroup>
-      </VictoryChart>
+      {/* Custom combined dataset chart */}
+      <BarChart
+        data={{
+          labels: chartLabels,
+          datasets: [
+            {
+              data: incomeData,
+              color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`, // Green
+            },
+            {
+              data: expenseData,
+              color: (opacity = 1) => `rgba(244, 67, 54, ${opacity})`, // Red
+            },
+          ],
+          legend: ["Income", "Expense"],
+        }}
+        width={screenWidth}
+        height={260}
+        yAxisLabel="₹"
+        chartConfig={{
+          backgroundColor: "#fff",
+          backgroundGradientFrom: "#fff",
+          backgroundGradientTo: "#fff",
+          decimalPlaces: 0,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          labelColor: () => "#444",
+          propsForBackgroundLines: {
+            stroke: "#eee",
+          },
+          barPercentage: 0.5,
+        }}
+        style={{ borderRadius: 16, marginTop: 15 }}
+        withInnerLines={false}
+        fromZero
+        showBarTops={false}
+      />
     </ScrollView>
   );
 };
@@ -130,9 +162,45 @@ export default Stats;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 15 },
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
-  filterRow: { flexDirection: "row", justifyContent: "space-around", marginVertical: 10 },
-  filterButton: { padding: 10, borderRadius: 8, backgroundColor: "#ddd" },
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 10,
+  },
+  filterButton: {
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#ddd",
+    minWidth: 90,
+    alignItems: "center",
+  },
   activeFilter: { backgroundColor: "#26897C" },
-  cardsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  card: { flex: 1, backgroundColor: "#f9f9f9", padding: 10, borderRadius: 8, marginHorizontal: 5, alignItems: "center" },
+  cardsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+  },
+  card: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    alignItems: "center",
+    shadowColor: "#ccc",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 5,
+  },
+  cardValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#222",
+  },
 });
