@@ -43,7 +43,7 @@ export default function More() {
       {/* Grid Menu */}
       <View style={styles.grid}>
         <GridItem icon={<MaterialIcons name="person-outline" size={28} color="#26897C" />} label="Profile" />
-        <GridItem icon={<FontAwesome name="gear" size={28} color="#26897C" />} label="Configuration" />
+        <GridItem icon={<FontAwesome name="gear" size={28} color="#26897C" />} label="Configuration" onPress={() => router.push("/configuration")} />
         <GridItem icon={<FontAwesome name="bank" size={28} color="#26897C" />} label="Account" />
         {/* <GridItem icon={<Ionicons name="person" size={28} color="#26897C" />} label="Account Info" /> */}
         <GridItem icon={<Ionicons name="mail-outline" size={28} color="#26897C" />} label="Feedback" />

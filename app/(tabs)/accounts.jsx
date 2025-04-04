@@ -135,9 +135,9 @@ const Account = ({ navigation }) => {
                 </Text>
               </View>
               <View style={{ alignItems: "flex-end" }}>
-                <TouchableOpacity onPress={() => deleteBank(bank)}>
+                {/* <TouchableOpacity onPress={() => deleteBank(bank)}>
                   <Text style={{ color: "red", fontSize: 12 }}>Delete</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity
                   style={[
@@ -223,9 +223,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 2,
   },
-  bankName: { fontSize: 16, fontWeight: "bold", textTransform: "capitalize" },
-  accountNumber: { fontSize: 14, color: "#555" },
-  balance: { fontSize: 14, marginTop: 5, fontWeight: "600" },
+  bankName: { fontSize: 20, fontWeight: "bold", textTransform: "capitalize" },
+  accountNumber: { fontSize: 16, color: "#888" },
+  balance: { fontSize: 18, marginTop: 5, fontWeight: "600" },
   accountType: { fontSize: 12, color: "#888" },
   defaultButton: {
     borderWidth: 1,
