@@ -16,6 +16,33 @@ import { decryptData } from "../../utils/encryption";
 import RecentTransactions from "../../components/ui/RecentTransactions";
 import AppSafeArea from "../../components/AppSafeArea";
 
+
+const sendLocalNotification = async (type, amount) => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: `${type === 'income' ? 'Income' : 'Expense'} Detected`,
+      body: `₹${amount} ${type === 'income' ? 'credited' : 'debited'} - Add to tracker?`,
+      data: { amount, type }
+    },
+    trigger: null, // send immediately
+  });
+};
+
+// Simple SMS parser function
+const parseSMS = (message) => {
+  const creditMatch = message.match(/credited.*?₹?(\d+(?:,\d{3})*(?:\.\d+)?)/i);
+  const debitMatch = message.match(/debited.*?₹?(\d+(?:,\d{3})*(?:\.\d+)?)/i);
+
+  if (creditMatch) {
+    return { type: 'income', amount: creditMatch[1] };
+  } else if (debitMatch) {
+    return { type: 'expense', amount: debitMatch[1] };
+  }
+
+  return null;
+};
+
+
 export default function Home() {
   const router = useRouter();
   const { user } = useAuth();
