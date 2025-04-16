@@ -16,29 +16,36 @@ import { decryptData } from "../../utils/encryption";
 import RecentTransactions from "../../components/ui/RecentTransactions";
 import AppSafeArea from "../../components/AppSafeArea";
 
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { Platform } from 'react-native';
+import SmsAndroid from 'react-native-get-sms-android';
+import { PermissionsAndroid } from 'react-native';
 
-const sendLocalNotification = async (type, amount) => {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: `${type === 'income' ? 'Income' : 'Expense'} Detected`,
-      body: `₹${amount} ${type === 'income' ? 'credited' : 'debited'} - Add to tracker?`,
-      data: { amount, type }
-    },
-    trigger: null, // send immediately
-  });
-};
 
-// Simple SMS parser function
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 const parseSMS = (message) => {
-  const creditMatch = message.match(/credited.*?₹?(\d+(?:,\d{3})*(?:\.\d+)?)/i);
-  const debitMatch = message.match(/debited.*?₹?(\d+(?:,\d{3})*(?:\.\d+)?)/i);
+  const creditMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(credited)/i);
+  const debitMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(debited)/i);
 
   if (creditMatch) {
+    console.log("✅ Credit matched:", creditMatch[1]);
     return { type: 'income', amount: creditMatch[1] };
-  } else if (debitMatch) {
+  }
+
+  if (debitMatch) {
+    console.log("✅ Debit matched:", debitMatch[1]);
     return { type: 'expense', amount: debitMatch[1] };
   }
 
+  console.log("❌ Regex did not match.");
   return null;
 };
 
@@ -50,6 +57,104 @@ export default function Home() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
+
+
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+  }, []);
+
+  useEffect(() => {
+    const requestAndReadSMS = async () => {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_SMS,
+          {
+            title: 'Read SMS Permission',
+            message: 'App needs access to your SMS to detect bank transactions',
+            buttonPositive: 'OK',
+          }
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          const filter = {
+            box: 'inbox',
+            maxCount: 5, // only fetch latest 5 messages
+          };
+
+          SmsAndroid.list(
+
+            JSON.stringify(filter),
+            (fail) => {
+              console.log('Failed with this error: ' + fail);
+            },
+            async (count, smsList) => {
+              const messages = JSON.parse(smsList);
+              console.log("Fetched SMS messages:", messages);
+
+              for (let msg of messages) {
+                const parsed = parseSMS(msg.body);
+                if (parsed) {
+                  await sendLocalNotification(parsed.type, parsed.amount);
+                  break; // stop after first matched message
+                }
+              }
+            }
+          );
+        } else {
+          console.log('SMS permission denied');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+
+    requestAndReadSMS();
+  }, []);
+
+
+
+  async function registerForPushNotificationsAsync() {
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  }
+
+  const sendLocalNotification = async (type, amount) => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `${type === 'income' ? 'Income' : 'Expense'} Detected`,
+        body: `₹${amount} ${type === 'income' ? 'credited' : 'debited'} - Add to tracker?`,
+        data: { amount, type }
+      },
+      trigger: null, // send immediately
+    });
+  };
+
+  // useEffect(() => {
+  //   sendLocalNotification('income', 500)
+  // }, [])
 
   useEffect(() => {
     if (!user) return;
@@ -107,19 +212,19 @@ export default function Home() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-      setIsReady(true); 
+    setIsReady(true);
   }, []);
-  
+
   useEffect(() => {
-      if (!isReady) return; 
-      if (!user) {
-          router.replace("/welcome");
-      }
+    if (!isReady) return;
+    if (!user) {
+      router.replace("/welcome");
+    }
   }, [user, isReady]);
 
   return (
     <AppSafeArea>
-      <ScrollView style={{backgroundColor : "white"}}>
+      <ScrollView style={{ backgroundColor: "white" }}>
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
@@ -129,6 +234,23 @@ export default function Home() {
               <Text style={styles.bell}>🔔</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            onPress={() => {
+              const testMessage = "Rs.105.0 has been debited from your MobiKwik wallet.";
+              const parsed = parseSMS(testMessage);
+              if (parsed) sendLocalNotification(parsed.type, parsed.amount);
+              else console.log("❌ Message not parsed.");
+            }}
+            style={{
+              backgroundColor: '#26897C',
+              padding: 12,
+              margin: 20,
+              borderRadius: 10
+            }}
+          >
+            <Text style={{ color: 'white', textAlign: 'center' }}>Test MobiKwik SMS</Text>
+          </TouchableOpacity>
+
 
           {/* Balance Card */}
           <View style={styles.balanceCard}>
@@ -150,7 +272,7 @@ export default function Home() {
             </View>
           </View>
         </View>
-        <View style={{backgroundColor : "white"}}>
+        <View style={{ backgroundColor: "white" }}>
           <RecentTransactions />
         </View>
       </ScrollView>
@@ -176,7 +298,7 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-      </AppSafeArea>
+    </AppSafeArea>
   );
 }
 
@@ -200,16 +322,16 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 20,
   },
-  totalText: { color: "#fff",fontSize : 16,},
+  totalText: { color: "#fff", fontSize: 16, },
   amount: {
     fontSize: 34,
     color: "#fff",
     fontWeight: "bold",
     marginVertical: 5,
   },
-  balanceRow: { flexDirection: "row", justifyContent: "space-between",marginTop : 10, },
+  balanceRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 10, },
   label: { color: "#ccc", fontSize: 16 },
-  balanceAmount: { fontWeight: "bold", marginTop: 5,fontSize : 24 },
+  balanceAmount: { fontWeight: "bold", marginTop: 5, fontSize: 24 },
   income: { color: "#00e676" },
   expense: { color: "#ff1744" },
   section: {
