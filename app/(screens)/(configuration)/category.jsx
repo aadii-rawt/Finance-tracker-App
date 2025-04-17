@@ -6,10 +6,10 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation, useLocalSearchParams } from "expo-router"; // useLocalSearchParams to get route param
 import { useAuth } from "../../../context/AuthContext";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import { decryptData } from "../../../utils/encryption";
 
@@ -17,7 +17,7 @@ const CategoryScreen = () => {
   const navigation = useNavigation();
   const { type = "income" } = useLocalSearchParams(); // 👈 get 'type' from route params
   const [categories, setCategories] = useState([]);
-  const { user } = useAuth();
+  const { user, setNotification } = useAuth();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,6 +50,53 @@ const CategoryScreen = () => {
     return () => unsubscribe && unsubscribe();
   }, [user, type]);
 
+  const handleDelete = async (categoryToDelete) => {
+    if (!user?.uid) return;
+    console.log(categoryToDelete);
+
+    try {
+      // Reference to the user's transaction document
+      const transactionRef = doc(db, "transactions", decryptData(user.uid));
+      const transactionSnap = await getDoc(transactionRef);
+
+      if (transactionSnap.exists()) {
+        const data = transactionSnap.data();
+        const allTransactions = [
+          ...(data.income || []),
+          ...(data.expense || []),
+        ];
+        // Check if any transaction has the category to be deleted
+        const isCategoryUsed = allTransactions.some(
+          (transaction) =>
+            transaction.category === categoryToDelete?.category &&
+            transaction.type === categoryToDelete?.type
+        );
+
+        if (isCategoryUsed) {
+          setNotification({
+            msg: "This category cannot be deleted as they are associated with some transactions..",
+            type: "error",
+          });
+          return;
+        }
+      }
+
+      // Reference to the user's category document
+      const userCategoriesRef = doc(db, "categories",decryptData(user.uid));
+      const updatedCategories = categories.filter(
+        (cat) => cat !== categoryToDelete
+      );
+
+      // Update Firestore with the new category list
+      await updateDoc(userCategoriesRef, { category: updatedCategories });
+
+      console.log("Category deleted successfully!");
+      fetchCategories();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -70,14 +117,10 @@ const CategoryScreen = () => {
         contentContainerStyle={{ paddingHorizontal: 10 }}
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
-            <TouchableOpacity>
-              <Entypo name="minus" size={20} color="red" />
-            </TouchableOpacity>
             <Text style={styles.itemText}>{item?.category}</Text>
-            <View style={styles.rightIcons}>
-              <Ionicons name="pencil-outline" size={20} color="#666" />
-              <Ionicons name="reorder-three" size={24} color="#999" />
-            </View>
+            <TouchableOpacity onPress={() => handleDelete(item)} style={styles.rightIcons}>
+              <MaterialIcons name="delete-outline" size={24} color="red" />
+            </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={

@@ -22,6 +22,8 @@ import { Platform } from 'react-native';
 import SmsAndroid from 'react-native-get-sms-android';
 import { PermissionsAndroid } from 'react-native';
 
+import SmsListener from 'react-native-android-sms-listener';
+
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -32,6 +34,7 @@ Notifications.setNotificationHandler({
 });
 
 const parseSMS = (message) => {
+   console.log("Parsing message:", message);
   const creditMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(credited)/i);
   const debitMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(debited)/i);
 
@@ -59,57 +62,70 @@ export default function Home() {
   const [balance, setBalance] = useState(0);
 
 
+useEffect(() => {
+  const subscription = SmsListener.addListener(message => {
+    console.log("📩 Real-time incoming SMS:", message.body);
+    const parsed = parseSMS(message.body);
+    if (parsed) {
+      sendLocalNotification(parsed.type, parsed.amount);
+    }
+  });
+
+  return () => subscription.remove(); // cleanup
+}, []);
+
+
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
 
-  useEffect(() => {
-    const requestAndReadSMS = async () => {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_SMS,
-          {
-            title: 'Read SMS Permission',
-            message: 'App needs access to your SMS to detect bank transactions',
-            buttonPositive: 'OK',
-          }
-        );
+  // useEffect(() => {
+  //   const requestAndReadSMS = async () => {
+  //     try {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.READ_SMS,
+  //         {
+  //           title: 'Read SMS Permission',
+  //           message: 'App needs access to your SMS to detect bank transactions',
+  //           buttonPositive: 'OK',
+  //         }
+  //       );
 
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          const filter = {
-            box: 'inbox',
-            maxCount: 5, // only fetch latest 5 messages
-          };
+  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //         const filter = {
+  //           box: 'inbox',
+  //           maxCount: 5, // only fetch latest 5 messages
+  //         };
 
-          SmsAndroid.list(
+  //         SmsAndroid.list(
 
-            JSON.stringify(filter),
-            (fail) => {
-              console.log('Failed with this error: ' + fail);
-            },
-            async (count, smsList) => {
-              const messages = JSON.parse(smsList);
-              console.log("Fetched SMS messages:", messages);
+  //           JSON.stringify(filter),
+  //           (fail) => {
+  //             console.log('Failed with this error: ' + fail);
+  //           },
+  //           async (count, smsList) => {
+  //             const messages = JSON.parse(smsList);
+  //             console.log("Fetched SMS messages:", messages);
 
-              for (let msg of messages) {
-                const parsed = parseSMS(msg.body);
-                if (parsed) {
-                  await sendLocalNotification(parsed.type, parsed.amount);
-                  break; // stop after first matched message
-                }
-              }
-            }
-          );
-        } else {
-          console.log('SMS permission denied');
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    };
+  //             for (let msg of messages) {
+  //               const parsed = parseSMS(msg.body);
+  //               if (parsed) {
+  //                 await sendLocalNotification(parsed.type, parsed.amount);
+  //                 break; // stop after first matched message
+  //               }
+  //             }
+  //           }
+  //         );
+  //       } else {
+  //         console.log('SMS permission denied');
+  //       }
+  //     } catch (err) {
+  //       console.warn(err);
+  //     }
+  //   };
 
-    requestAndReadSMS();
-  }, []);
+  //   requestAndReadSMS();
+  // }, []);
 
 
 
@@ -234,23 +250,6 @@ export default function Home() {
               <Text style={styles.bell}>🔔</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              const testMessage = "Rs.105.0 has been debited from your MobiKwik wallet.";
-              const parsed = parseSMS(testMessage);
-              if (parsed) sendLocalNotification(parsed.type, parsed.amount);
-              else console.log("❌ Message not parsed.");
-            }}
-            style={{
-              backgroundColor: '#26897C',
-              padding: 12,
-              margin: 20,
-              borderRadius: 10
-            }}
-          >
-            <Text style={{ color: 'white', textAlign: 'center' }}>Test MobiKwik SMS</Text>
-          </TouchableOpacity>
-
 
           {/* Balance Card */}
           <View style={styles.balanceCard}>
