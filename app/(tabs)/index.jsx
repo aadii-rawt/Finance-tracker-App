@@ -19,10 +19,9 @@ import AppSafeArea from "../../components/AppSafeArea";
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import SmsAndroid from 'react-native-get-sms-android';
 import { PermissionsAndroid } from 'react-native';
-
 import SmsListener from 'react-native-android-sms-listener';
+
 
 
 Notifications.setNotificationHandler({
@@ -61,6 +60,43 @@ export default function Home() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
 
+  useEffect(() => {
+    const requestSMSPermission = async () => {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
+        {
+          title: 'SMS Receive Permission',
+          message: 'This app needs access to receive SMS messages to track transactions.',
+          buttonPositive: 'Allow',
+        }
+      );
+  
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("❌ SMS RECEIVE permission denied");
+        return;
+      }
+  
+      console.log("✅ SMS RECEIVE permission granted");
+  
+      // Start real-time listener after permission
+      const subscription = SmsListener.addListener((message) => {
+        console.log("📩 Real-time incoming SMS:", message.body);
+        const parsed = parseSMS(message.body);
+        if (parsed) {
+          sendLocalNotification(parsed.type, parsed.amount);
+        }
+      });
+  
+      // Cleanup on unmount
+      return () => subscription.remove();
+    };
+  
+    // Run it
+    if (Platform.OS === 'android') {
+      requestSMSPermission();
+    }
+  }, []);
+  
 
 useEffect(() => {
   const subscription = SmsListener.addListener(message => {
