@@ -7,12 +7,11 @@ type Props = {
     onNext: () => void;
 }
 
-const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
-    const [accountName, setAccountName] = useState('');
-    const [accountType, setAccountType] = useState('');
-    const [creationDate, setCreationDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [balance, setBalance] = useState('');
+const BusinessDetails : React.FC<Props> = ({ onNext})  => {
+    const [name, setName] = useState('');
+    const [address, setAddress] = useState('');
+    const [businessType, setBusinessType] = useState('');
+    const [employee, setemployee] = useState('');
 
     const handleDateChange = (selectedDate) => {
         setShowDatePicker(false);
@@ -29,22 +28,29 @@ const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
             <View>
 
 
-                <Text className="text-2xl font-bold mb-4">Account Details</Text>
+                <Text className="text-2xl font-bold mb-4">Business Details</Text>
 
                 <Text className="text-base mb-1">Account Name</Text>
                 <TextInput
                     placeholder="e.g., Cash, SBI Savings"
                     className="border border-gray-300 rounded-md px-4 py-3 mb-1"
-                    value={accountName}
-                    onChangeText={setAccountName}
+                    value={name}
+                    onChangeText={setName}
                 />
-                <Text className="text-xs text-gray-500 mb-4">Only letters and spaces allowed</Text>
+                <Text className="text-base mb-1">Address</Text>
+                <TextInput
+                    placeholder="e.g., Cash, SBI Savings"
+                    className="border border-gray-300 rounded-md px-4 py-3 mb-1"
+                    value={address}
+                    onChangeText={setAddress}
+                />
+                {/* <Text className="text-xs text-gray-500 mb-4">Only letters and spaces allowed</Text> */}
 
                 <Text className="text-base mb-1">Account Type</Text>
                 <View className="border border-gray-300 rounded-md mb-4">
                     <Picker
-                        selectedValue={accountType}
-                        onValueChange={(itemValue) => setAccountType(itemValue)}
+                        selectedValue={businessType}
+                        onValueChange={(itemValue) => setBusinessType(itemValue)}
                     >
                         <Picker.Item label="Select type" value="" />
                         <Picker.Item label="Savings" value="savings" />
@@ -53,33 +59,14 @@ const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
                     </Picker>
                 </View>
 
-                <Text className="text-base mb-1">Date of Creation</Text>
-                <TouchableOpacity
-                    onPress={() => setShowDatePicker(true)}
-                    className="border border-gray-300 rounded-md px-4 py-3 mb-4"
-                >
-                    <Text className="text-gray-600">
-                        {creationDate.toLocaleDateString('en-GB')}
-                    </Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={creationDate}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                    />
-                )}
-
-                <Text className="text-base mb-1">Current Balance</Text>
+                <Text className="text-base mb-1">Number of Employees</Text>
                 <TextInput
                     placeholder="e.g., 5000"
                     keyboardType="numeric"
                     className="border border-gray-300 rounded-md px-4 py-3 mb-1"
-                    value={balance}
-                    onChangeText={setBalance}
+                    value={employee}
+                    onChangeText={setemployee}
                 />
-                <Text className="text-xs text-gray-500 mb-6">Must be a valid number (min: 0)</Text>
             </View>
 
             <View>
@@ -93,7 +80,7 @@ const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
                 </TouchableOpacity>
                 <View className="flex-row justify-center mt-6">
                     {Array.from({ length: 5 }).map((_, index) => {
-                        const isActive = index + 1 === 2;
+                        const isActive = index + 1 === 4;
                         return (
                             <View
                                 key={index}
@@ -109,4 +96,4 @@ const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
 }
 
 
-export default AccountDetailsStep
+export default BusinessDetails

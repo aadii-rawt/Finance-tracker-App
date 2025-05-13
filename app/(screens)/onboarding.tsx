@@ -1,5 +1,6 @@
 // src/onboarding/OnboardingStep1.js
 import AccountDetailsStep from '@/components/onboarding/AccountDetailsStep';
+import BusinessDetails from '@/components/onboarding/BusinessDetails';
 import CashAmount from '@/components/onboarding/CashAmount';
 import MobileNumberStep from '@/components/onboarding/mobileNumber';
 import { useNavigation } from 'expo-router';
@@ -20,7 +21,8 @@ export default function Onboarding() {
         <View>
             {step === 1 && <MobileNumberStep onNext={() => setStep(2)} />}
             {step === 2 && <AccountDetailsStep onNext={() => setStep(3)} />}
-            {step === 3 && <CashAmount onNext={() => setStep(4)} />}
+            {step === 3 && <CashAmount onNext={() => setStep(4)}/>}
+            {step === 4 && <BusinessDetails onNext={() => setStep(4)} />}
         </View>
     );
 }

@@ -10,22 +10,15 @@ import {
 } from "react-native";
 
 type Props = {
-  onNext: () => void;
+    onNext: () => void;
 }
 
-const CashAmount : React.FC<Props> = ({ onNext }) => {
+const CashAmount: React.FC<Props> = ({ onNext }) => {
     const [amount, setAmount] = useState("");
     const [error, setError] = useState("");
 
     const handleContinue = () => {
-
-        // if (!mobile || mobile.length < 10) {
-        //   Alert.alert('Invalid', 'Please enter a valid mobile number.');
-        //   return;
-        // }
-        // Call onNext or navigation logic
-        console.log('Phone number submitted:', amount);
-        if (onNext) onNext();
+        onNext()
     };
 
     return (
