@@ -36,8 +36,9 @@ const settings = [
 ];
 
 const Configuration = () => {
-  const router = useRouter();
 
+
+  const router = useRouter();
   const navigation = useNavigation();
 
   useLayoutEffect(() => {

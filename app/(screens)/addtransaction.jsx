@@ -16,9 +16,9 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "@/utils/firebase";
-import { decryptData } from "@/utils/encryption";
-import { useAuth } from "@/context/AuthContext";
+import { db } from "../../firebase";
+import { decryptData } from "../../utils/encryption";
+import { useAuth } from "../../context/AuthContext";
 import DropDown from "../../components/dropDown";
 import uuid from 'react-native-uuid';
 import { useNavigation } from "expo-router";

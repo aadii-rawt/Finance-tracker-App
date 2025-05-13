@@ -1,6 +1,6 @@
 import { Alert, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { signOut } from 'firebase/auth';
-import { auth } from '../../utils/firebase';
+import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialIcons, FontAwesome, Entypo } from '@expo/vector-icons';

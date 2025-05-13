@@ -1,18 +1,13 @@
 {
   "expo": {
-    "name": "Moneylyst",
-    "slug": "Moneylyst",
+    "name": "Expense-tracker",
+    "slug": "Expense-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "expensetracker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/SplashScreen.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -21,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.aadiirawt.Moneylyst"
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
@@ -42,14 +37,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "ad3bb013-106c-471d-bcbe-eef86da24afc"
-      }
     }
   }
 }

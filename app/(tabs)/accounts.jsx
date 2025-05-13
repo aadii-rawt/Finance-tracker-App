@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../utils/firebase";
+import { db } from "../../firebase";
 import { decryptData } from "../../utils/encryption";
 import { useAuth } from "../../context/AuthContext";
-import CreateBankModal from "../../components/createBankAccount";
+// import CreateBankModal from "../../components/createBankAccount";
 
 const Account = ({ navigation }) => {
   const { user, setNotification } = useAuth();
@@ -163,13 +163,13 @@ const Account = ({ navigation }) => {
         )}
       </ScrollView>
 
-      {showCreateModal && (
+      {/* {showCreateModal && (
         <CreateBankModal
           visible={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           fetchBanks={fetchBanks}
         />
-      )}
+      )} */}
     </View>
   );
 };

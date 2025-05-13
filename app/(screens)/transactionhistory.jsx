@@ -1,11 +1,12 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { useAuth } from "../../context/AuthContext";
-import { db } from "../../utils/firebase";
+import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
 import moment from "moment"; 
 import { useNavigation } from "expo-router";
+
 const alphabetColors = {
   a: "#E53935", // Dark Red
   b: "#D81B60", // Dark Pink
@@ -34,8 +35,6 @@ const alphabetColors = {
   y: "#1976D2", // Darker Blue
   z: "#0288D1"  // Darker Light Blue
 };
-
-
 
 const TransactionHistory = () => {
   const { user } = useAuth();

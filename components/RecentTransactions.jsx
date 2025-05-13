@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import { useAuth } from "../../context/AuthContext";
-import { db } from "../../utils/firebase";
+import { useAuth } from "../context/AuthContext"
+import { db } from ".././firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { decryptData } from "../../utils/encryption";
+import { decryptData } from "../utils/encryption";
 import { Link } from "expo-router";
 
 const alphabetColors = {

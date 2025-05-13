@@ -1,7 +1,7 @@
 // context/AuthContext.js
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '../utils/firebase';
+import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
         return () => unsubscribeSnapshot();
       } else {
         setUser(null);
-        await AsyncStorage.removeItem('user');
+        // await AsyncStorage.removeItem('user');
         setLoading(false);
       }
     });

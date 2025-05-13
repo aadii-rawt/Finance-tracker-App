@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ScrollView 
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { Link, useRouter } from 'expo-router';
-import { auth, db } from '../../utils/firebase';
+import { auth, db } from '../../firebase';
 import { encryptData } from '../../utils/encryption';
 import { useAuth } from '../../context/AuthContext';
 

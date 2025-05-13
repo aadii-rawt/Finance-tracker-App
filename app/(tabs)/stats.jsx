@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../utils/firebase";
+import { db } from "../../firebase";
 import { decryptData } from "../../utils/encryption";
 import { useAuth } from "../../context/AuthContext";
 import moment from "moment";

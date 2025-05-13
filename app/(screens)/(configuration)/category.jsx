@@ -10,7 +10,7 @@ import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation, useLocalSearchParams } from "expo-router"; // useLocalSearchParams to get route param
 import { useAuth } from "../../../context/AuthContext";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "../../../utils/firebase";
+import { db } from "../../../firebase";
 import { decryptData } from "../../../utils/encryption";
 
 const CategoryScreen = () => {

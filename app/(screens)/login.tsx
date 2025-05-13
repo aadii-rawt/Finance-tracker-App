@@ -12,7 +12,7 @@ import { useRouter, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../utils/firebase"; // import your firebase.js
+import { auth, db } from "../../firebase"; // import your firebase.js
 import { useAuth } from "../../context/AuthContext";
 import { decryptData } from "../../utils/encryption"; // import your encryption.js
 const Login = () => {

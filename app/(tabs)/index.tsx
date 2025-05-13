@@ -8,48 +8,15 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
+
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { db } from "../../utils/firebase";
+import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
-import RecentTransactions from "../../components/ui/RecentTransactions";
 import AppSafeArea from "../../components/AppSafeArea";
+import RecentTransactions from "../../components/RecentTransactions";
 
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { Platform } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
-import SmsListener from 'react-native-android-sms-listener';
-
-
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
-
-const parseSMS = (message) => {
-   console.log("Parsing message:", message);
-  const creditMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(credited)/i);
-  const debitMatch = message.match(/(?:₹|Rs\.?)\s?(\d+(?:\.\d+)?).*(debited)/i);
-
-  if (creditMatch) {
-    console.log("✅ Credit matched:", creditMatch[1]);
-    return { type: 'income', amount: creditMatch[1] };
-  }
-
-  if (debitMatch) {
-    console.log("✅ Debit matched:", debitMatch[1]);
-    return { type: 'expense', amount: debitMatch[1] };
-  }
-
-  console.log("❌ Regex did not match.");
-  return null;
-};
 
 
 export default function Home() {
@@ -59,154 +26,6 @@ export default function Home() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
-
-  useEffect(() => {
-    const requestSMSPermission = async () => {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
-        {
-          title: 'SMS Receive Permission',
-          message: 'This app needs access to receive SMS messages to track transactions.',
-          buttonPositive: 'Allow',
-        }
-      );
-  
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("❌ SMS RECEIVE permission denied");
-        return;
-      }
-  
-      console.log("✅ SMS RECEIVE permission granted");
-  
-      // Start real-time listener after permission
-      const subscription = SmsListener.addListener((message) => {
-        console.log("📩 Real-time incoming SMS:", message.body);
-        const parsed = parseSMS(message.body);
-        if (parsed) {
-          sendLocalNotification(parsed.type, parsed.amount);
-        }
-      });
-  
-      // Cleanup on unmount
-      return () => subscription.remove();
-    };
-  
-    // Run it
-    if (Platform.OS === 'android') {
-      requestSMSPermission();
-    }
-  }, []);
-  
-
-useEffect(() => {
-  const subscription = SmsListener.addListener(message => {
-    console.log("📩 Real-time incoming SMS:", message.body);
-    const parsed = parseSMS(message.body);
-    if (parsed) {
-      sendLocalNotification(parsed.type, parsed.amount);
-    }
-  });
-
-  return () => subscription.remove(); // cleanup
-}, []);
-
-
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-  }, []);
-
-  // useEffect(() => {
-  //   const requestAndReadSMS = async () => {
-  //     try {
-  //       const granted = await PermissionsAndroid.request(
-  //         PermissionsAndroid.PERMISSIONS.READ_SMS,
-  //         {
-  //           title: 'Read SMS Permission',
-  //           message: 'App needs access to your SMS to detect bank transactions',
-  //           buttonPositive: 'OK',
-  //         }
-  //       );
-
-  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //         const filter = {
-  //           box: 'inbox',
-  //           maxCount: 5, // only fetch latest 5 messages
-  //         };
-
-  //         SmsAndroid.list(
-
-  //           JSON.stringify(filter),
-  //           (fail) => {
-  //             console.log('Failed with this error: ' + fail);
-  //           },
-  //           async (count, smsList) => {
-  //             const messages = JSON.parse(smsList);
-  //             console.log("Fetched SMS messages:", messages);
-
-  //             for (let msg of messages) {
-  //               const parsed = parseSMS(msg.body);
-  //               if (parsed) {
-  //                 await sendLocalNotification(parsed.type, parsed.amount);
-  //                 break; // stop after first matched message
-  //               }
-  //             }
-  //           }
-  //         );
-  //       } else {
-  //         console.log('SMS permission denied');
-  //       }
-  //     } catch (err) {
-  //       console.warn(err);
-  //     }
-  //   };
-
-  //   requestAndReadSMS();
-  // }, []);
-
-
-
-  async function registerForPushNotificationsAsync() {
-    if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
-
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-  }
-
-  const sendLocalNotification = async (type, amount) => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `${type === 'income' ? 'Income' : 'Expense'} Detected`,
-        body: `₹${amount} ${type === 'income' ? 'credited' : 'debited'} - Add to tracker?`,
-        data: { amount, type }
-      },
-      trigger: null, // send immediately
-    });
-  };
-
-  // useEffect(() => {
-  //   sendLocalNotification('income', 500)
-  // }, [])
 
   useEffect(() => {
     if (!user) return;
