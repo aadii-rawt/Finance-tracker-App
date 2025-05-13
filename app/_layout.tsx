@@ -1,12 +1,12 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { AuthProvider } from "../context/AuthContext";
 import ToastNotification from "../components/ToastNotification";
-import "../global.css"
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthProvider } from "../context/AuthContext";
+import "../global.css";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -36,7 +36,6 @@ export default function RootLayout() {
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
-
         <ToastNotification />
       </ThemeProvider>
     </AuthProvider>
