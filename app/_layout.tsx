@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { AuthProvider } from "../context/AuthContext";
 import ToastNotification from "../components/ToastNotification";
-
+import "../global.css"
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
@@ -31,6 +31,7 @@ export default function RootLayout() {
           <Stack.Screen name="(screens)/addtransaction" options={{headerShown : false}} />
           <Stack.Screen name="(screens)/login" options={{ headerShown: false }} />
           <Stack.Screen name="(screens)/signup" options={{ headerShown: false }} />
+          {/* <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} /> */}
           <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
