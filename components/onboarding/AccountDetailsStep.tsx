@@ -1,7 +1,8 @@
+import { useAuth } from '@/context/AuthContext';
 import { db } from '@/firebase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Platform,
@@ -11,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import uuid from "react-native-uuid";
 type Props = {
   onNext: () => void;
 };
@@ -22,6 +23,8 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
   const [createDate, setCreationDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialBalance, setBalance] = useState('');
+  const { user } = useAuth()
+
 
   const handleDateChange = (_: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios'); // keep picker open on iOS
@@ -30,70 +33,24 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
     }
   };
 
-  const handleContinue = () => {
-    onNext();
-  };
-
-  const saveBankAccount = async () => {
-   
-    // if (
-    //   accountName ||
-    //   !bankDetails?.accountType ||
-    //   !bankDetails?.createDate
-    // ) {
-    //   return setError("Please fill all required fields.");
-    // }
-
-    // if (!bankDetails?.accountName?.trim()) {
-    //   return setError("Please fill all required fields.");
-    // }
-
-    // if (bankDetails?.initialBalance && bankDetails?.initialBalance < 0) {
-    //   return setError("Invalid initial balance amount");
-    // }
-
+  const handleContinue = async () => {
     try {
-      // setSubmiting(true);
-      // const userRef = doc(db, "banks", user.uid);
-      // const docSnap = await getDoc(userRef);
-
-      let updatedBanks = [];
-
-      if (docSnap.exists()) {
-        updatedBanks = docSnap.data().banks || [];
+      const newBank = {
+        accountName,
+        accountType,
+        initialBalance: parseFloat(initialBalance),
+        bankId: uuid.v4(),
+        createdAt: createDate.toISOString(),
       }
-
-      // Convert input name to lowercase for case-insensitive comparison
-      const newAccountName = bankDetails.accountName.toLowerCase();
-
-      // Check for duplicate names
-      const isNameDuplicate = updatedBanks.some(
-        (bank) =>
-          bank.accountName.toLowerCase() === newAccountName &&
-          (!bankToEdit || bank.bankId !== bankToEdit.bankId)
-      );
-
-      if (isNameDuplicate) {
-        setNotification({
-          msg: "A bank account with this name already exists!",
-          type: "error",
-        });
-        return;
-      }
-
-        updatedBanks.push({
-          ...bankDetails,
-          initialBalance: parseFloat(bankDetails.initialBalance) || 0,
-          bankId: crypto.randomUUID(),
-        });
-
-      await setDoc(userRef, { banks: updatedBanks }, { merge: true });
-
-   
+      const bankDocRef = doc(db, 'banks', user?.uid);
+      await updateDoc(bankDocRef, {
+        banks: arrayUnion(newBank),
+      })
+      console.log('Bank added successfully');
+      onNext();
     } catch (error) {
-      console.error("Error saving bank account:", error);
-     
-    } 
+      console.error('Error adding bank:', error);
+    }
   };
 
 
@@ -132,7 +89,7 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
           onPress={() => setShowDatePicker(true)}
         >
           <Text style={styles.dateText}>
-            {creationDate.toLocaleDateString('en-GB')}
+            {createDate.toLocaleDateString('en-GB')}
           </Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -147,9 +104,9 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
         <Text style={styles.label}>Current Balance</Text>
         <TextInput
           style={styles.input}
-          placeholder="e.g., 5000"
+          placeholder="₹500"
           keyboardType="numeric"
-          value={balance}
+          value={initialBalance}
           onChangeText={setBalance}
         />
         <Text style={styles.subLabel}>Must be a valid number (min: 0)</Text>

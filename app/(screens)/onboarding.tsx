@@ -13,18 +13,18 @@ export default function Onboarding() {
     const {user} = useAuth()
     console.log(user);
     
-    const [step, setStep] = useState<number>(user.currentStep || 1);
+    const [step, setStep] = useState<number>(0);
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <StatusBar backgroundColor="#000" barStyle="light-content" />
             <View style={styles.container}>
                 <View style={{ height: "100%" }}>
-                    {step === 1 && <MobileNumberStep onNext={() => setStep(2)} />}
-                    {step === 2 && <AccountDetailsStep onNext={() => setStep(3)} />}
-                    {step === 3 && <CashAmount onNext={() => setStep(4)} />}
-                    {step === 4 && <BusinessDetails onNext={() => setStep(5)} />}
-                    {step === 5 && <CategoryStep  />}
+                    {step === 0 && <MobileNumberStep onNext={() => setStep(1)} />}
+                    {step === 1 && <AccountDetailsStep onNext={() => setStep(2)} />}
+                    {step === 2 && <CashAmount onNext={() => setStep(3)} />}
+                    {step === 3 && <BusinessDetails onNext={() => setStep(4)} />}
+                    {step === 4 && <CategoryStep />}
                 </View>
             </View>
         </SafeAreaView>
