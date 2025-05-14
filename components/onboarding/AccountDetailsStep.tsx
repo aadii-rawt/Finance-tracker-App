@@ -87,11 +87,8 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
       </View>
 
       <View>
-        <TouchableOpacity style={styles.button} onPress={handleContinue}>
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
 
-        <View style={styles.stepperContainer}>
+          <View style={styles.stepperContainer}>
           {Array.from({ length: 5 }).map((_, index) => {
             const isActive = index + 1 === 2;
             return (
@@ -105,6 +102,12 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
             );
           })}
         </View>
+        
+        <TouchableOpacity style={styles.button} onPress={handleContinue}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+
+      
       </View>
     </View>
   );
@@ -185,7 +188,7 @@ const styles = StyleSheet.create({
   stepperContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+   marginBottom: 24,
   },
   stepDot: {
     width: 8,

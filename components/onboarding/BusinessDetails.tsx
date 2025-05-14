@@ -87,11 +87,7 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
 
           {/* Fixed bottom section */}
           <View style={styles.bottomSection}>
-            <TouchableOpacity onPress={handleContinue} style={styles.button}>
-              <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-
-            <View style={styles.stepperContainer}>
+             <View style={styles.stepperContainer}>
               {Array.from({ length: 5 }).map((_, index) => {
                 const isActive = index + 1 === 4;
                 return (
@@ -105,6 +101,12 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
                 );
               })}
             </View>
+
+            <TouchableOpacity onPress={handleContinue} style={styles.button}>
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+
+          
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
   stepperContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginBottom: 24,
   },
   stepDot: {
     width: 8,

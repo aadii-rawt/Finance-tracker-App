@@ -100,9 +100,6 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
         </ScrollView>
 
         <View style={styles.bottomSection}>
-          <TouchableOpacity onPress={onNext} style={styles.button}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
 
           <View style={styles.stepperContainer}>
             {Array.from({ length: 4 }).map((_, index) => {
@@ -118,6 +115,11 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
               );
             })}
           </View>
+
+          <TouchableOpacity onPress={onNext} style={styles.button}>
+            <Text style={styles.buttonText}>Finish</Text>
+          </TouchableOpacity>
+
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
   stepperContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginBottom: 24,
   },
   stepDot: {
     width: 8,
