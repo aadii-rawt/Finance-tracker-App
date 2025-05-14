@@ -1,3 +1,6 @@
+import { useAuth } from "@/context/AuthContext";
+import { db } from "@/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -19,9 +22,50 @@ type Props = {
 const CashAmount: React.FC<Props> = ({ onNext }) => {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
+  const { user } = useAuth()
 
-  const handleContinue = () => {
-    onNext();
+  const handleContinue = async () => {
+
+    if (!amount) {
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        currentStep: 3,
+      });
+      onNext()
+      return
+    }
+
+    try {
+      const bankRef = doc(db, 'banks', user?.uid);
+      const bankSnap = await getDoc(bankRef);
+
+      const data = bankSnap.data();
+      const banks = data?.banks || [];
+
+      const updatedBanks = banks.map((account: any) => {
+        if (account.accountType === 'Cash') {
+          return {
+            ...account,
+            initialBalance: parseFloat(amount),
+          };
+        }
+        return account;
+      });
+
+      await updateDoc(bankRef, {
+        banks: updatedBanks,
+      });
+
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        currentStep: 3,
+      });
+
+      console.log('Cash account balance updated.');
+      // onNext();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
