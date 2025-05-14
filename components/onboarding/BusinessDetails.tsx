@@ -1,16 +1,16 @@
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
 type Props = {
@@ -87,7 +87,7 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
 
           {/* Fixed bottom section */}
           <View style={styles.bottomSection}>
-             <View style={styles.stepperContainer}>
+            <View style={styles.stepperContainer}>
               {Array.from({ length: 5 }).map((_, index) => {
                 const isActive = index + 1 === 4;
                 return (
@@ -106,7 +106,7 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
               <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
 
-          
+
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   input: {
-     backgroundColor: "#f3f4f6",
+    backgroundColor: "#f3f4f6",
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 24,
+    marginBottom : 24,
     backgroundColor: '#ffffff',
   },
   button: {
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 21,
     textAlign: 'center',
     fontWeight: '600',
   },

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 
 type Props = {
@@ -54,10 +54,9 @@ const CashAmount: React.FC<Props> = ({ onNext }) => {
 
           {/* Fixed bottom section */}
           <View style={styles.bottomSection}>
-          
 
             <View style={styles.stepperContainer}>
-              {Array.from({ length: 4 }).map((_, index) => {
+              {Array.from({ length: 5 }).map((_, index) => {
                 const isActive = index + 1 === 3;
                 return (
                   <View
@@ -71,9 +70,10 @@ const CashAmount: React.FC<Props> = ({ onNext }) => {
               })}
             </View>
 
-              <TouchableOpacity onPress={handleContinue} style={styles.button}>
+            <TouchableOpacity onPress={handleContinue} style={styles.button}>
               <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
+
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 24,
-    backgroundColor: "#ffffff",
+    marginBottom: 24,
   },
   title: {
     fontSize: 32,
@@ -126,21 +126,22 @@ const styles = StyleSheet.create({
     color: "#ef4444",
     marginBottom: 8,
   },
+
   button: {
-    backgroundColor: "#26897C",
+    backgroundColor: '#26897C',
     paddingVertical: 12,
     borderRadius: 24,
   },
   buttonText: {
-    color: "#ffffff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "600",
+    color: '#ffffff',
+    fontSize: 21,
+    textAlign: 'center',
+    fontWeight: '600',
   },
   stepperContainer: {
     flexDirection: "row",
     justifyContent: "center",
-  marginBottom: 24,
+    marginBottom: 24,
   },
   stepDot: {
     width: 8,

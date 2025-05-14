@@ -1,14 +1,14 @@
 import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 
 const CategoryStep = ({ onNext }: { onNext: () => void }) => {
@@ -77,7 +77,7 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
               placeholderTextColor="#6b7280"
             />
             <TouchableOpacity onPress={addIncomeTag} style={styles.addButton}>
-              <AntDesign name="plus" size={20} color="#26897C" />
+              <AntDesign name="plus" size={24} color="#26897C" />
             </TouchableOpacity>
           </View>
           {renderTags(incomeTags, 'income')}
@@ -93,17 +93,18 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
               placeholderTextColor="#6b7280"
             />
             <TouchableOpacity onPress={addExpenseTag} style={styles.addButton}>
-              <AntDesign name="plus" size={20} color="#26897C" />
+              <AntDesign name="plus" size={24} color="#26897C" />
             </TouchableOpacity>
           </View>
           {renderTags(expenseTags, 'expense')}
         </ScrollView>
 
+
         <View style={styles.bottomSection}>
 
           <View style={styles.stepperContainer}>
-            {Array.from({ length: 4 }).map((_, index) => {
-              const isActive = index + 1 === 4;
+            {Array.from({ length: 5 }).map((_, index) => {
+              const isActive = index + 1 === 5;
               return (
                 <View
                   key={index}
@@ -116,11 +117,12 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
             })}
           </View>
 
-          <TouchableOpacity onPress={onNext} style={styles.button}>
-            <Text style={styles.buttonText}>Finish</Text>
+          <TouchableOpacity  style={styles.button}>
+            <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
 
         </View>
+
       </View>
     </KeyboardAvoidingView>
   );
@@ -144,6 +146,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 24,
+    marginBottom : 24,
     backgroundColor: '#ffffff',
   },
   title: {
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     marginLeft: 12,
-    padding: 8,
+    padding: 12,
     borderRadius: 12,
     backgroundColor: '#e0f2f1',
   },
@@ -206,7 +209,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 21,
     textAlign: 'center',
     fontWeight: '600',
   },

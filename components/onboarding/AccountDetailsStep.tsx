@@ -86,9 +86,9 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
         <Text style={styles.subLabel}>Must be a valid number (min: 0)</Text>
       </View>
 
-      <View>
+      <View style={styles.bottomSection}>
 
-          <View style={styles.stepperContainer}>
+        <View style={styles.stepperContainer}>
           {Array.from({ length: 5 }).map((_, index) => {
             const isActive = index + 1 === 2;
             return (
@@ -102,12 +102,13 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
             );
           })}
         </View>
-        
+
+
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
 
-      
+
       </View>
     </View>
   );
@@ -174,21 +175,24 @@ const styles = StyleSheet.create({
     color: '#4b5563',
     fontSize: 16,
   },
+  bottomSection: {
+    paddingBottom: 24, // add padding so keyboard doesn't overlap
+  },
   button: {
     backgroundColor: '#26897C',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 24,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 18,
+    color: '#ffffff',
+    fontSize: 21,
     textAlign: 'center',
     fontWeight: '600',
   },
   stepperContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-   marginBottom: 24,
+    marginBottom: 24,
   },
   stepDot: {
     width: 8,
