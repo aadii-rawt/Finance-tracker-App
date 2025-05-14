@@ -1,5 +1,7 @@
 import { useAuth } from '@/context/AuthContext';
+import { db } from '@/firebase';
 import Feather from '@expo/vector-icons/Feather';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Keyboard,
@@ -23,27 +25,27 @@ const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
 
   const handleContinue = async () => {
 
-    // try {
-    //   const sanitizedMobile = mobile.trim().replace(/\D/g, "");
-    //   if (!sanitizedMobile) {
-    //     setError("Please enter your mobile number.");
-    //     return;
-    //   }
-    //   if (sanitizedMobile.length !== 10) {
-    //     setError("Please enter a valid 10-digit mobile number.");
-    //     return;
-    //   }
+    try {
+      const sanitizedMobile = mobile.trim().replace(/\D/g, "");
+      if (!sanitizedMobile) {
+        setError("Please enter your mobile number.");
+        return;
+      }
+      if (sanitizedMobile.length !== 10) {
+        setError("Please enter a valid 10-digit mobile number.");
+        return;
+      }
 
-    //   const userRef = doc(db, "users", user?.uid);
-    //   await updateDoc(userRef, {
-    //     mobile: mobile.trim(),
-    //     currentStep: 2,
-    //   });
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        mobile: mobile.trim(),
+        currentStep: 1,
+      });
 
-    //   console.log('Phone number submitted:', mobile);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+      console.log('Phone number submitted:', mobile);
+    } catch (error) {
+      console.log(error);
+    }
     onNext();
   };
 

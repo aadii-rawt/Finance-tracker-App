@@ -46,6 +46,12 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
       await updateDoc(bankDocRef, {
         banks: arrayUnion(newBank),
       })
+
+      const userRef = doc(db, "users", user?.uid); 
+      await updateDoc(userRef, {
+        currentStep: 2,
+      });
+
       console.log('Bank added successfully');
       onNext();
     } catch (error) {

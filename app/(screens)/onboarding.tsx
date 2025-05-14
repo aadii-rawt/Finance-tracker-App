@@ -13,7 +13,7 @@ export default function Onboarding() {
     const {user} = useAuth()
     console.log(user);
     
-    const [step, setStep] = useState<number>(0);
+    const [step, setStep] = useState<number>(user?.currentStep || 0);
 
     return (
         <SafeAreaView style={styles.safeArea}>
