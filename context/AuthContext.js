@@ -1,17 +1,17 @@
 // context/AuthContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '../firebase';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'expo-router';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { auth, db } from '../firebase';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null)
+  const router = useRouter();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -20,9 +20,14 @@ export const AuthProvider = ({ children }) => {
           if (docSnap.exists()) {
             const userData = docSnap.data();
             setUser(userData);
+            // if (true) {
+            //   router.replace('./onboarding');
+            //   return
+            // }
+
             // await AsyncStorage.setItem('user', JSON.stringify(userData)); // persist user
           } else {
-          
+
             // await AsyncStorage.removeItem('user');
           }
           setLoading(false);
@@ -40,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, setLoading ,notification, setNotification}}>
+    <AuthContext.Provider value={{ user, setUser, loading, setLoading, notification, setNotification }}>
       {children}
     </AuthContext.Provider>
   );

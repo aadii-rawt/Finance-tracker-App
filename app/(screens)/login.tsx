@@ -1,19 +1,18 @@
+import { Link, useRouter } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  Alert,
-  ActivityIndicator,
+  View
 } from "react-native";
-import React, { useState } from "react";
-import { useRouter, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../firebase"; // import your firebase.js
 import { useAuth } from "../../context/AuthContext";
+import { auth, db } from "../../firebase"; // import your firebase.js
 import { decryptData } from "../../utils/encryption"; // import your encryption.js
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -54,12 +53,19 @@ const Login = () => {
         return;
       }
 
-      const userData =decryptData(userDoc.data());
-      setUser(userData); // Store in Auth Context
+      const userData = decryptData(userDoc.data());
+
+      setUser(userData);
+      console.log(userData);
+      
+      if (userData?.hasOnboarded) {
+        router.push("/");
+      } else {
+        router.replace("./onboarding")
+      }
 
       // Navigate to home
-      router.push("/");
-    } catch (err : any) {
+    } catch (err: any) {
       console.log("Login Error:", err);
       if (err.code === "auth/user-not-found") {
         setError("No account found with this email.");
@@ -168,7 +174,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 12,
     borderWidth: 1,
-    fontSize : 18,
+    fontSize: 18,
     borderColor: "#e5e7eb",
   },
   button: {
@@ -181,7 +187,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize : 18,
+    fontSize: 18,
   },
   bottomText: {
     color: "#26897C",

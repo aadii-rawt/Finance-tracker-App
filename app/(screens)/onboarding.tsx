@@ -4,13 +4,16 @@ import BusinessDetails from '@/components/onboarding/BusinessDetails';
 import CashAmount from '@/components/onboarding/CashAmount';
 import CategoryStep from '@/components/onboarding/CategoryStep';
 import MobileNumberStep from '@/components/onboarding/mobileNumber';
+import { useAuth } from '@/context/AuthContext';
 import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
 
 export default function Onboarding() {
 
-    const [step, setStep] = useState<number>(1);
-
+    const {user} = useAuth()
+    console.log(user);
+    
+    const [step, setStep] = useState<number>(user.currentStep || 1);
 
     return (
         <SafeAreaView style={styles.safeArea}>

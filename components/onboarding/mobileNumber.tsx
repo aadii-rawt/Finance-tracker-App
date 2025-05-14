@@ -1,4 +1,7 @@
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/firebase';
 import Feather from '@expo/vector-icons/Feather';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Keyboard,
@@ -18,10 +21,32 @@ type Props = {
 const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
   const [mobile, setMobile] = useState('');
   const [error, setError] = useState('');
+  const { user } = useAuth();
 
-  const handleContinue = () => {
-    console.log('Phone number submitted:', mobile);
-    if (onNext) onNext();
+  const handleContinue = async () => {
+
+    try {
+      const sanitizedMobile = mobile.trim().replace(/\D/g, "");
+      if (!sanitizedMobile) {
+        setError("Please enter your mobile number.");
+        return;
+      }
+      if (sanitizedMobile.length !== 10) {
+        setError("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        mobile: mobile.trim(),
+        currentStep: 2,
+      });
+
+      console.log('Phone number submitted:', mobile);
+      onNext();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -53,7 +78,7 @@ const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
 
           <View style={styles.bottomSection}>
 
-             <View style={styles.stepperContainer}>
+            <View style={styles.stepperContainer}>
               {Array.from({ length: 5 }).map((_, index) => {
                 const isActive = index + 1 === 1;
                 return (
@@ -67,12 +92,11 @@ const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
                 );
               })}
             </View>
-            
+
             <TouchableOpacity onPress={handleContinue} style={styles.button}>
               <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
 
-           
           </View>
         </ScrollView>
       </View>
@@ -117,7 +141,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 12,
     borderWidth: 1,
-    fontSize : 18,
+    fontSize: 18,
     borderColor: "#e5e7eb",
   },
   errorText: {

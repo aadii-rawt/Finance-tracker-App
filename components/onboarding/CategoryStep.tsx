@@ -99,9 +99,7 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
           {renderTags(expenseTags, 'expense')}
         </ScrollView>
 
-
         <View style={styles.bottomSection}>
-
           <View style={styles.stepperContainer}>
             {Array.from({ length: 5 }).map((_, index) => {
               const isActive = index + 1 === 5;

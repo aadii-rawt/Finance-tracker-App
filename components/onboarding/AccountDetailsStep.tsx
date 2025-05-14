@@ -1,5 +1,7 @@
+import { db } from '@/firebase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Platform,
@@ -17,9 +19,9 @@ type Props = {
 const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
   const [accountName, setAccountName] = useState('');
   const [accountType, setAccountType] = useState('');
-  const [creationDate, setCreationDate] = useState(new Date());
+  const [createDate, setCreationDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [balance, setBalance] = useState('');
+  const [initialBalance, setBalance] = useState('');
 
   const handleDateChange = (_: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios'); // keep picker open on iOS
@@ -31,6 +33,69 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
   const handleContinue = () => {
     onNext();
   };
+
+  const saveBankAccount = async () => {
+   
+    // if (
+    //   accountName ||
+    //   !bankDetails?.accountType ||
+    //   !bankDetails?.createDate
+    // ) {
+    //   return setError("Please fill all required fields.");
+    // }
+
+    // if (!bankDetails?.accountName?.trim()) {
+    //   return setError("Please fill all required fields.");
+    // }
+
+    // if (bankDetails?.initialBalance && bankDetails?.initialBalance < 0) {
+    //   return setError("Invalid initial balance amount");
+    // }
+
+    try {
+      // setSubmiting(true);
+      // const userRef = doc(db, "banks", user.uid);
+      // const docSnap = await getDoc(userRef);
+
+      let updatedBanks = [];
+
+      if (docSnap.exists()) {
+        updatedBanks = docSnap.data().banks || [];
+      }
+
+      // Convert input name to lowercase for case-insensitive comparison
+      const newAccountName = bankDetails.accountName.toLowerCase();
+
+      // Check for duplicate names
+      const isNameDuplicate = updatedBanks.some(
+        (bank) =>
+          bank.accountName.toLowerCase() === newAccountName &&
+          (!bankToEdit || bank.bankId !== bankToEdit.bankId)
+      );
+
+      if (isNameDuplicate) {
+        setNotification({
+          msg: "A bank account with this name already exists!",
+          type: "error",
+        });
+        return;
+      }
+
+        updatedBanks.push({
+          ...bankDetails,
+          initialBalance: parseFloat(bankDetails.initialBalance) || 0,
+          bankId: crypto.randomUUID(),
+        });
+
+      await setDoc(userRef, { banks: updatedBanks }, { merge: true });
+
+   
+    } catch (error) {
+      console.error("Error saving bank account:", error);
+     
+    } 
+  };
+
 
   return (
     <View style={styles.container}>
@@ -51,9 +116,13 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
             onValueChange={(itemValue) => setAccountType(itemValue)}
           >
             <Picker.Item label="Select type" value="" />
+            <Picker.Item label="Bank Account" value="bank" />
+            <Picker.Item label="Card" value="card" />
+            <Picker.Item label="Debit Card" value="debitCard" />
             <Picker.Item label="Savings" value="savings" />
-            <Picker.Item label="Checking" value="checking" />
-            <Picker.Item label="Cash" value="cash" />
+            <Picker.Item label="Loan" value="loan" />
+            <Picker.Item label="Investments" value="investments" />
+            <Picker.Item label="Others" value="others" />
           </Picker>
         </View>
 
@@ -68,7 +137,7 @@ const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
-            value={creationDate}
+            value={createDate}
             mode="date"
             display="default"
             onChange={handleDateChange}
