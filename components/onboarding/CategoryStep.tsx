@@ -1,5 +1,9 @@
+import { useAuth } from '@/context/AuthContext'; // adjust path to your auth context
+import { db } from '@/firebase';
 import { AntDesign } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -10,22 +14,29 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+// import { saveCategories } from '@/utils/saveCategories'; // helper (below)
+
+const defaultIncomeTags = ['salary', 'bonus', 'gift'];
+const defaultExpenseTags = ['rent', 'food', 'transport'];
 
 const CategoryStep = ({ onNext }: { onNext: () => void }) => {
+
+  const { user } = useAuth();
   const [incomeTags, setIncomeTags] = useState<string[]>([]);
   const [expenseTags, setExpenseTags] = useState<string[]>([]);
   const [incomeInput, setIncomeInput] = useState('');
   const [expenseInput, setExpenseInput] = useState('');
+  const router = useRouter()
 
   const addIncomeTag = () => {
-    if (incomeInput.trim()) {
+    if (incomeInput.trim() && !incomeTags.includes(incomeInput.trim())) {
       setIncomeTags([...incomeTags, incomeInput.trim()]);
       setIncomeInput('');
     }
   };
 
   const addExpenseTag = () => {
-    if (expenseInput.trim()) {
+    if (expenseInput.trim() && !expenseTags.includes(expenseInput.trim())) {
       setExpenseTags([...expenseTags, expenseInput.trim()]);
       setExpenseInput('');
     }
@@ -39,6 +50,39 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
     }
   };
 
+    // Fetch default categories on component mount
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchDefaultCategories = async () => {
+      try {
+        const docRef = doc(db, 'categories', user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const fetchedIncome = data.category
+            .filter((cat: any) => cat.type === 'income')
+            .map((cat: any) => cat.category);
+
+          const fetchedExpense = data.category
+            .filter((cat: any) => cat.type === 'expense')
+            .map((cat: any) => cat.category);
+
+          setIncomeTags(fetchedIncome);
+          setExpenseTags(fetchedExpense);
+        } else {
+          console.log('No categories found for user.');
+
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchDefaultCategories();
+  }, [user]);
+
   const renderTags = (tags: string[], type: 'income' | 'expense') => (
     <View style={styles.tagContainer}>
       {tags.map((tag, index) => (
@@ -51,6 +95,25 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
       ))}
     </View>
   );
+
+  const handleFinish = async () => {
+    // if (!user) return;
+
+    const allCategories = [
+      ...incomeTags.map(tag => ({ category: tag, type: 'income' })),
+      ...expenseTags.map(tag => ({ category: tag, type: 'expense' })),
+    ];
+
+    try {
+      const categoriesRef = doc(db, 'categories', user?.uid);
+      await setDoc(categoriesRef, {category : allCategories})
+      console.log('Categories saved successfully');
+       router.replace("/");
+    } catch (error) {
+      console.error('Error saving categories:', error);
+      throw error;
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -115,18 +178,17 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
             })}
           </View>
 
-          <TouchableOpacity  style={styles.button}>
-            <Text style={styles.buttonText}>Next</Text>
+          <TouchableOpacity onPress={handleFinish} style={styles.button}>
+            <Text style={styles.buttonText}>Finish</Text>
           </TouchableOpacity>
-
         </View>
-
       </View>
     </KeyboardAvoidingView>
   );
 };
 
 export default CategoryStep;
+
 
 // styles remain the same as before
 const styles = StyleSheet.create({
@@ -144,7 +206,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 24,
-    marginBottom : 24,
+    marginBottom: 24,
     backgroundColor: '#ffffff',
   },
   title: {

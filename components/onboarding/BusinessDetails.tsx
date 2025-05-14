@@ -1,4 +1,7 @@
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/firebase';
 import { Picker } from '@react-native-picker/picker';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   Keyboard,
@@ -12,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import uuid from "react-native-uuid";
 
 type Props = {
   onNext: () => void;
@@ -21,10 +25,47 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [businessType, setBusinessType] = useState('');
-  const [employee, setEmployee] = useState('');
+  const [employees, setEmployee] = useState('');
+  const { user } = useAuth()
 
-  const handleContinue = () => {
-    onNext();
+  const handleContinue = async () => {
+
+    // if (false) {
+    //   const userRef = doc(db, "users", user?.uid);
+    //   await updateDoc(userRef, {
+    //     currentStep: 4,
+    //   });
+    //   onNext()
+    //   return
+    // }
+
+    try {
+      const businessRef = doc(db, 'business', user.uid);
+
+      const newBusiness = {
+        id: uuid.v4(),
+        name,
+        address,
+        businessType,
+        employees
+      };
+      await setDoc(businessRef, {
+        businesses: [newBusiness],
+        hasBusiness: true,
+      });
+
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        currentStep: 4,
+      });
+
+      onNext()
+      console.log('Business added successfully');
+    } catch (error) {
+      console.error('Error adding business:', error);
+      throw error;
+    }
+
   };
 
   return (
@@ -43,7 +84,7 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
           >
             <Text style={styles.title}>Business Detailsss</Text>
 
-            <Text style={styles.label}>Account Name</Text>
+            <Text style={styles.label}>Business Name</Text>
             <TextInput
               placeholder="e.g., Cash, SBI Savings"
               value={name}
@@ -68,16 +109,15 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
                 onValueChange={(itemValue) => setBusinessType(itemValue)}
               >
                 <Picker.Item label="Select type" value="" />
-                <Picker.Item label="Savings" value="savings" />
-                <Picker.Item label="Checking" value="checking" />
-                <Picker.Item label="Cash" value="cash" />
+                <Picker.Item label="Product" value="product" />
+                <Picker.Item label="Service" value="service" />
               </Picker>
             </View>
 
             <Text style={styles.label}>Number of Employees</Text>
             <TextInput
               placeholder="e.g., 50"
-              value={employee}
+              value={employees}
               onChangeText={setEmployee}
               keyboardType="numeric"
               style={styles.input}
@@ -161,7 +201,7 @@ const styles = StyleSheet.create({
   bottomSection: {
     paddingHorizontal: 24,
     paddingBottom: 24,
-    marginBottom : 24,
+    marginBottom: 24,
     backgroundColor: '#ffffff',
   },
   button: {
