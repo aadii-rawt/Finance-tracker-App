@@ -1,84 +1,155 @@
-import React, { useState } from "react";
+import Feather from '@expo/vector-icons/Feather';
+import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  Keyboard,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-} from "react-native";
+  TouchableWithoutFeedback,
+  View
+} from 'react-native';
 
 type Props = {
   onNext: () => void;
-}
+};
 
 const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
-  const [mobile, setMobile] = useState("");
-  const [error, setError] = useState("");
+  const [mobile, setMobile] = useState('');
+  const [error, setError] = useState('');
 
   const handleContinue = () => {
-
-    // if (!mobile || mobile.length < 10) {
-    //   Alert.alert('Invalid', 'Please enter a valid mobile number.');
-    //   return;
-    // }
-    // Call onNext or navigation logic
     console.log('Phone number submitted:', mobile);
     if (onNext) onNext();
   };
 
   return (
-    <KeyboardAvoidingView
-      className="flex flex-col justify-between h-screen p-6"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View className="mb-8">
-        <Text className="text-2xl font-bold text-gray-800 mb-2">
-          Enter Mobile Number
-        </Text>
-        {/* <Text className="text-gray-600">
-          We'll send an OTP for verification.
-        </Text> */}
-        <TextInput
-          className="border border-gray-400  rounded-3xl px-4 py-2 text-lg text-black mb-2"
-          keyboardType="phone-pad"
-          maxLength={10}
-          placeholder="e.g. 9999999999"
-          value={mobile}
-          onChangeText={setMobile}
-          placeholderTextColor={"#6b7280"}
-        />
-        {error ? <Text className="text-red-500 mb-2">{error}</Text> : null}
-      </View>
-
-
-
-      <View>
-        <TouchableOpacity
-          onPress={handleContinue}
-          className="bg-[#26897C] py-2.5 rounded-3xl "
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text className="text-white text-center text-lg font-semibold">
-            Next
-          </Text>
-        </TouchableOpacity>
-        <View className="flex-row justify-center mt-6">
-          {Array.from({ length: 4 }).map((_, index) => {
-            const isActive = index + 1 === 1;
-            return (
-              <View
-                key={index}
-                className={`w-2 h-2 rounded-full mx-1 ${isActive ? 'bg-gray-500' : 'bg-gray-300'
-                  }`}
-              />
-            );
-          })}
-        </View>
-      </View>
+          <View style={styles.topSection}>
+            <Text style={styles.title}>Mobile Number</Text>
+            <View style={styles.labelRow}>
+              <Feather name="phone" size={16} color="black" />
+              <Text style={styles.labelText}>  Mobile Number</Text>
+            </View>
 
-    </KeyboardAvoidingView>
+            <TextInput
+              style={styles.input}
+              keyboardType="phone-pad"
+              maxLength={10}
+              placeholder="+91 9999999999"
+              value={mobile}
+              onChangeText={setMobile}
+              placeholderTextColor="#6b7280"
+            />
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          </View>
+
+          <View style={styles.bottomSection}>
+            <TouchableOpacity onPress={handleContinue} style={styles.button}>
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+
+            <View style={styles.stepperContainer}>
+              {Array.from({ length: 5 }).map((_, index) => {
+                const isActive = index + 1 === 1;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.stepDot,
+                      isActive ? styles.activeDot : styles.inactiveDot,
+                    ]}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 export default MobileNumberStep;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  inner: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    padding: 24,
+  },
+  topSection: {
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#26897C',
+    marginBottom: 8,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  labelText: {
+    color: '#4b5563',
+    fontSize: 16,
+  },
+  input: {
+    backgroundColor: "#f3f4f6",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    fontSize : 18,
+    borderColor: "#e5e7eb",
+  },
+  errorText: {
+    color: '#ef4444',
+    marginBottom: 8,
+  },
+  button: {
+    backgroundColor: '#26897C',
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  bottomSection: {
+    paddingBottom: 24, // add padding so keyboard doesn't overlap
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  stepDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#6b7280',
+  },
+  inactiveDot: {
+    backgroundColor: '#d1d5db',
+  },
+});

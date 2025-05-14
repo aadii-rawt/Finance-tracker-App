@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Welcome= () => {
   const router = useRouter();
@@ -20,7 +20,7 @@ const Welcome= () => {
       <View style={styles.bottomCard}>
         <Text style={styles.title}>Spend Smarter{'\n'}Save More</Text>
 
-        <TouchableOpacity style={styles.getStartedButton} onPress={() => router.push('/signup')}>
+        <TouchableOpacity style={styles.getStartedButton} onPress={() => router.push('/onboarding')}>
           <Text style={styles.getStartedText}>Get Started</Text>
         </TouchableOpacity>
 

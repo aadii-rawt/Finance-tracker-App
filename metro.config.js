@@ -1,22 +1,11 @@
-// const { getDefaultConfig } = require('expo/metro-config');
-// const { withNativeWind } = require('nativewind/metro');
+const { getDefaultConfig } = require('expo/metro-config');
 
-// const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname);
 
-// // ✅ Add support for `.cjs` Firebase modules
-// // config.resolver.sourceExts.push('cjs');
+// ✅ Add support for `.cjs` Firebase modules
+config.resolver.sourceExts.push('cjs');
 
-// // // ✅ Disable unstable package export resolution to fix Firebase auth
-// // config.resolver.unstable_enablePackageExports = false;
+// ✅ Disable unstable package export resolution to fix Firebase auth
+config.resolver.unstable_enablePackageExports = false;
 
-// // module.exports = config;
- 
- 
-// module.exports = withNativeWind(config, { input: './global.css' })
-
-const { getDefaultConfig } = require("expo/metro-config");
-const { withNativeWind } = require('nativewind/metro');
- 
-const config = getDefaultConfig(__dirname)
- 
-module.exports = withNativeWind(config, { input: './global.css' })
+module.exports = config;

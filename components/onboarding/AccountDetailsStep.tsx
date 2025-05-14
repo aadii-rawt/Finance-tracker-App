@@ -1,112 +1,202 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 type Props = {
-    onNext: () => void;
-}
+  onNext: () => void;
+};
 
-const AccountDetailsStep : React.FC<Props> = ({onNext})  => {
-    const [accountName, setAccountName] = useState('');
-    const [accountType, setAccountType] = useState('');
-    const [creationDate, setCreationDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [balance, setBalance] = useState('');
+const AccountDetailsStep: React.FC<Props> = ({ onNext }) => {
+  const [accountName, setAccountName] = useState('');
+  const [accountType, setAccountType] = useState('');
+  const [creationDate, setCreationDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [balance, setBalance] = useState('');
 
-    const handleDateChange = (selectedDate) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setCreationDate(selectedDate);
-        }
-    };
-
-    const handleContinue = (): void => {
-        onNext()
+  const handleDateChange = (_: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios'); // keep picker open on iOS
+    if (selectedDate) {
+      setCreationDate(selectedDate);
     }
-    return (
-        <View className="flex justify-between h-screen bg-white px-6 p-6">
-            <View>
+  };
 
+  const handleContinue = () => {
+    onNext();
+  };
 
-                <Text className="text-2xl font-bold mb-4">Account Details</Text>
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Account Details</Text>
 
-                <Text className="text-base mb-1">Account Name</Text>
-                <TextInput
-                    placeholder="e.g., Cash, SBI Savings"
-                    className="border border-gray-300 rounded-md px-4 py-3 mb-1"
-                    value={accountName}
-                    onChangeText={setAccountName}
-                />
-                <Text className="text-xs text-gray-500 mb-4">Only letters and spaces allowed</Text>
-
-                <Text className="text-base mb-1">Account Type</Text>
-                <View className="border border-gray-300 rounded-md mb-4">
-                    <Picker
-                        selectedValue={accountType}
-                        onValueChange={(itemValue) => setAccountType(itemValue)}
-                    >
-                        <Picker.Item label="Select type" value="" />
-                        <Picker.Item label="Savings" value="savings" />
-                        <Picker.Item label="Checking" value="checking" />
-                        <Picker.Item label="Cash" value="cash" />
-                    </Picker>
-                </View>
-
-                <Text className="text-base mb-1">Date of Creation</Text>
-                <TouchableOpacity
-                    onPress={() => setShowDatePicker(true)}
-                    className="border border-gray-300 rounded-md px-4 py-3 mb-4"
-                >
-                    <Text className="text-gray-600">
-                        {creationDate.toLocaleDateString('en-GB')}
-                    </Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={creationDate}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                    />
-                )}
-
-                <Text className="text-base mb-1">Current Balance</Text>
-                <TextInput
-                    placeholder="e.g., 5000"
-                    keyboardType="numeric"
-                    className="border border-gray-300 rounded-md px-4 py-3 mb-1"
-                    value={balance}
-                    onChangeText={setBalance}
-                />
-                <Text className="text-xs text-gray-500 mb-6">Must be a valid number (min: 0)</Text>
-            </View>
-
-            <View>
-                <TouchableOpacity
-                    onPress={handleContinue}
-                    className="bg-[#26897C] py-2.5 rounded-3xl "
-                >
-                    <Text className="text-white text-center text-lg font-semibold">
-                        Next
-                    </Text>
-                </TouchableOpacity>
-                <View className="flex-row justify-center mt-6">
-                    {Array.from({ length: 5 }).map((_, index) => {
-                        const isActive = index + 1 === 2;
-                        return (
-                            <View
-                                key={index}
-                                className={`w-2 h-2 rounded-full mx-1 ${isActive ? 'bg-gray-500' : 'bg-gray-300'
-                                    }`}
-                            />
-                        );
-                    })}
-                </View>
-            </View>
+        <Text style={styles.label}>Account Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g., Cash, SBI Savings"
+          value={accountName}
+          onChangeText={setAccountName}
+        />
+        <Text style={styles.label}>Account Type</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={accountType}
+            onValueChange={(itemValue) => setAccountType(itemValue)}
+          >
+            <Picker.Item label="Select type" value="" />
+            <Picker.Item label="Savings" value="savings" />
+            <Picker.Item label="Checking" value="checking" />
+            <Picker.Item label="Cash" value="cash" />
+          </Picker>
         </View>
-    );
-}
 
+        <Text style={styles.label}>Date of Creation</Text>
+        <TouchableOpacity
+          style={styles.datePickerButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.dateText}>
+            {creationDate.toLocaleDateString('en-GB')}
+          </Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={creationDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
 
-export default AccountDetailsStep
+        <Text style={styles.label}>Current Balance</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g., 5000"
+          keyboardType="numeric"
+          value={balance}
+          onChangeText={setBalance}
+        />
+        <Text style={styles.subLabel}>Must be a valid number (min: 0)</Text>
+      </View>
+
+      <View>
+        <TouchableOpacity style={styles.button} onPress={handleContinue}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+
+        <View style={styles.stepperContainer}>
+          {Array.from({ length: 5 }).map((_, index) => {
+            const isActive = index + 1 === 2;
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.stepDot,
+                  isActive ? styles.activeDot : styles.inactiveDot,
+                ]}
+              />
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default AccountDetailsStep;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+  },
+  content: {
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#26897C',
+    marginBottom: 8,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 4,
+    color: '#000',
+  },
+  subLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 16,
+  },
+  input: {
+    backgroundColor: "#f3f4f6",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    marginBottom: 12,
+    borderWidth: 1,
+    fontSize: 18,
+    borderColor: "#e5e7eb",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 15,
+    marginBottom: 16,
+    paddingVertical: 0,
+    overflow: 'hidden',
+    borderColor: "#e5e7eb",
+  },
+  datePickerButton: {
+    borderWidth: 1,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    marginBottom: 16,
+    borderColor: "#e5e7eb",
+  },
+  dateText: {
+    color: '#4b5563',
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#26897C',
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  stepDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#6b7280',
+  },
+  inactiveDot: {
+    backgroundColor: '#d1d5db',
+  },
+});
