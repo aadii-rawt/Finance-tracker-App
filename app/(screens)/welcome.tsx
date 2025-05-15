@@ -20,7 +20,7 @@ const Welcome= () => {
       <View style={styles.bottomCard}>
         <Text style={styles.title}>Spend Smarter{'\n'}Save More</Text>
 
-        <TouchableOpacity style={styles.getStartedButton} onPress={() => router.push('/onboarding')}>
+        <TouchableOpacity style={styles.getStartedButton} onPress={() => router.push('/signup')}>
           <Text style={styles.getStartedText}>Get Started</Text>
         </TouchableOpacity>
 

@@ -59,6 +59,7 @@ const CashAmount: React.FC<Props> = ({ onNext }) => {
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         currentStep: 3,
+      
       });
 
       console.log('Cash account balance updated.');
@@ -82,7 +83,11 @@ const CashAmount: React.FC<Props> = ({ onNext }) => {
             contentContainerStyle={styles.topSection}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.title}>Initial Cash Amount</Text>
+            <View style={{display : "flex", flexDirection : "row", gap: 2, alignItems : "center"}}>
+            <Text style={styles.title}>Initial Cash Amount </Text>
+            <Text style={{fontSize : 18}}>(Optional) </Text>
+            </View>
+            
             <Text style={styles.labelText}>Amount</Text>
             <TextInput
               style={styles.input}

@@ -82,7 +82,12 @@ const BusinessDetails: React.FC<Props> = ({ onNext }) => {
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.title}>Business Detailsss</Text>
+            <View style={{ display: "flex", flexDirection: "row", gap: 2, alignItems: "center" }}>
+              <Text style={styles.title}>Business Details</Text>
+              <Text style={{ fontSize: 18 }}>(Optional) </Text>
+
+            </View>
+
 
             <Text style={styles.label}>Business Name</Text>
             <TextInput

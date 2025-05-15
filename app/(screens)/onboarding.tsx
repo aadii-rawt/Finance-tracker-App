@@ -1,9 +1,9 @@
 // src/onboarding/OnboardingStep1.js
-import AccountDetailsStep from '@/components/onboarding/AccountDetailsStep';
-import BusinessDetails from '@/components/onboarding/BusinessDetails';
-import CashAmount from '@/components/onboarding/CashAmount';
-import CategoryStep from '@/components/onboarding/CategoryStep';
-import MobileNumberStep from '@/components/onboarding/mobileNumber';
+import CategoryStep from '@/components/onboarding/StepFive';
+import BusinessDetails from '@/components/onboarding/StepFour';
+import MobileNumberStep from '@/components/onboarding/StepOne';
+import CashAmount from '@/components/onboarding/StepThree';
+import AccountDetailsStep from '@/components/onboarding/StepTwo';
 import { useAuth } from '@/context/AuthContext';
 import React, { useState } from 'react';
 import { SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';

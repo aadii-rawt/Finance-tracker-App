@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { Link, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
 import { auth, db } from '../../firebase';
 import { encryptData } from '../../utils/encryption';
-import { useAuth } from '../../context/AuthContext';
 
 const Signup = () => {
   const { setUser, setNotification } = useAuth();
@@ -75,7 +75,7 @@ const Signup = () => {
 
       setUser(userData);
       setNotification({ msg: 'Account created successfully!', type: 'success' });
-      router.replace('/');
+      router.replace('/onboarding');
 
     } catch (error) {
       console.log(error);

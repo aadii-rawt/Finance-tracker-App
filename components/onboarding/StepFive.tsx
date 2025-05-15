@@ -2,7 +2,7 @@ import { useAuth } from '@/context/AuthContext'; // adjust path to your auth con
 import { db } from '@/firebase';
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -14,12 +14,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-// import { saveCategories } from '@/utils/saveCategories'; // helper (below)
 
-const defaultIncomeTags = ['salary', 'bonus', 'gift'];
-const defaultExpenseTags = ['rent', 'food', 'transport'];
-
-const CategoryStep = ({ onNext }: { onNext: () => void }) => {
+const CategoryStep = () => {
 
   const { user } = useAuth();
   const [incomeTags, setIncomeTags] = useState<string[]>([]);
@@ -50,7 +46,6 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
     }
   };
 
-    // Fetch default categories on component mount
   useEffect(() => {
     if (!user) return;
 
@@ -97,7 +92,7 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
   );
 
   const handleFinish = async () => {
-    // if (!user) return;
+    if (!user) return;
 
     const allCategories = [
       ...incomeTags.map(tag => ({ category: tag, type: 'income' })),
@@ -106,9 +101,15 @@ const CategoryStep = ({ onNext }: { onNext: () => void }) => {
 
     try {
       const categoriesRef = doc(db, 'categories', user?.uid);
-      await setDoc(categoriesRef, {category : allCategories})
+      await setDoc(categoriesRef, { category: allCategories })
+
+      const userRef = doc(db, "users", user?.uid);
+      await updateDoc(userRef, {
+        hasOnboarded: true
+      });
+      
       console.log('Categories saved successfully');
-       router.replace("/");
+      router.replace("/");
     } catch (error) {
       console.error('Error saving categories:', error);
       throw error;

@@ -35,7 +35,7 @@ const MobileNumberStep: React.FC<Props> = ({ onNext }) => {
         setError("Please enter a valid 10-digit mobile number.");
         return;
       }
-
+      
       const userRef = doc(db, "users", user?.uid);
       await updateDoc(userRef, {
         mobile: mobile.trim(),
