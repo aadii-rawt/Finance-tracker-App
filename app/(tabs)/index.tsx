@@ -93,7 +93,7 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={{ backgroundColor: "white" }}>
+      <ScrollView style={{ backgroundColor: "white" }} showsVerticalScrollIndicator={false}>
         <View >
           <View style={styles.balanceCard}>
             <Text style={styles.totalText}>Total Balance</Text>

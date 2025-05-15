@@ -7,7 +7,7 @@ const AppSafeArea = ({ children, backgroundColor = "#000" }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor }}>
-      <View style={{ paddingTop: insets.top, backgroundColor }} />
+      <View style={{ paddingTop: insets.top, backgroundColor , color : "white" }} />
       <StatusBar backgroundColor={backgroundColor} barStyle="light-content" />
       {children}
     </View>
