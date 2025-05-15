@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
+import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
 import { decryptData } from "../../utils/encryption";
-import { useAuth } from "../../context/AuthContext";
-// import CreateBankModal from "../../components/createBankAccount";
+import CreateBankModal from "../../components/createBankAccount";
 
 const Account = ({ navigation }) => {
   const { user, setNotification } = useAuth();
@@ -163,13 +162,13 @@ const Account = ({ navigation }) => {
         )}
       </ScrollView>
 
-      {/* {showCreateModal && (
+      {showCreateModal && (
         <CreateBankModal
           visible={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           fetchBanks={fetchBanks}
         />
-      )} */}
+      )}
     </View>
   );
 };

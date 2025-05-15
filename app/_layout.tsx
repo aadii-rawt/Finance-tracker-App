@@ -7,6 +7,7 @@ import ToastNotification from "../components/ToastNotification";
 import { AuthProvider } from "../context/AuthContext";
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AppSafeArea from "../components/AppSafeArea"; // ← import your custom safe area
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -15,28 +16,25 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
   return (
-   <AuthProvider>
+    <AuthProvider>
       <ThemeProvider value={DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          {/* <Stack.Screen name="index" options={{ headerShown: false }} /> */}
-          {/* <Stack.Screen name="login" /> */}
-          {/* <Stack.Screen name="(screens)/add" /> */}
-          <Stack.Screen name="(screens)/welcome" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)/addtransaction" options={{headerShown : false}} />
-          <Stack.Screen name="(screens)/login" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)/signup" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)/onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-
+        <AppSafeArea backgroundColor="#000"> {/* ← wrap your layout */}
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/welcome" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/addtransaction" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/login" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/signup" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </AppSafeArea>
+        <StatusBar style="light" /> {/* match barStyle to your AppSafeArea */}
         <ToastNotification />
       </ThemeProvider>
     </AuthProvider>

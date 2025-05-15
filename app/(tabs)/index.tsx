@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
   ScrollView,
-  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
+import BankCards from "@/components/home/BankCards";
 import { useRouter } from "expo-router";
+import { doc, getDoc } from "firebase/firestore";
+import RecentTransactions from "../../components/RecentTransactions";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
-import AppSafeArea from "../../components/AppSafeArea";
-import RecentTransactions from "../../components/RecentTransactions";
 
 
 
@@ -94,19 +92,9 @@ export default function Home() {
   }, [user, isReady]);
 
   return (
-    <AppSafeArea>
+    <View style={styles.container}>
       <ScrollView style={{ backgroundColor: "white" }}>
-        <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            {/* <Text style={styles.greeting}>Good afternoon,</Text> */}
-            {/* <Text style={styles.name}>{decryptData(user?.username)}</Text> */}
-            <TouchableOpacity onPress={() => router.push("/welcome")}>
-              <Text style={styles.bell}>🔔</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Balance Card */}
+        <View >
           <View style={styles.balanceCard}>
             <Text style={styles.totalText}>Total Balance</Text>
             <Text style={styles.amount}>₹ {balance.toFixed()}</Text>
@@ -126,10 +114,14 @@ export default function Home() {
             </View>
           </View>
         </View>
+        
+        <BankCards />
+        
         <View style={{ backgroundColor: "white" }}>
           <RecentTransactions />
         </View>
       </ScrollView>
+
       <View style={{ position: "absolute", bottom: 40, right: 20 }}>
         <TouchableOpacity
           onPress={() => router.push("/addtransaction")}
@@ -152,15 +144,11 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-    </AppSafeArea>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // safeArea: {
-  //   flex: 1,
-  //   paddingTop: 10,
-  // },
   container: { flex: 1, backgroundColor: "white", padding: 10 },
   header: {
     flexDirection: "row",
@@ -174,7 +162,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#26897C",
     borderRadius: 20,
     padding: 20,
-    marginVertical: 20,
+    marginVertical: 10,
   },
   totalText: { color: "#fff", fontSize: 16, },
   amount: {
