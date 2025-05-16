@@ -49,7 +49,8 @@ const Configuration = () => {
 
 
   return (
-      <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView >
         {settings.map((section, i) => (
           <View key={i} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -72,14 +73,14 @@ const Configuration = () => {
           </View>
         ))}
       </ScrollView>
+    </View>
   );
 };
 
 export default Configuration;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15 },
-  header: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
+  container: { flex: 1,paddingHorizontal: 15  },
   section: { marginBottom: 25 },
   sectionTitle: {
     fontSize: 14,

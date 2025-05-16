@@ -61,7 +61,6 @@ const NewCategory = () => {
 
             // Update the document with new encrypted data
             await updateDoc(docRef, { category: updatedCategories });
-
             console.log("Category saved successfully");
             router.back();
         } catch (err) {
@@ -83,7 +82,7 @@ const NewCategory = () => {
             />
 
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Save Category</Text>
+                <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
         </View>
     );
@@ -112,33 +111,9 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         fontSize: 16,
     },
-    typeSelector: {
-        flexDirection: 'row',
-        marginBottom: 30,
-    },
-    typeButton: {
-        flex: 1,
-        paddingVertical: 12,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        alignItems: 'center',
-        marginRight: 10,
-    },
-    typeButtonSelected: {
-        backgroundColor: '#007AFF',
-        borderColor: '#007AFF',
-    },
-    typeText: {
-        fontSize: 16,
-        color: '#555',
-    },
-    typeTextSelected: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
+
     saveButton: {
-        backgroundColor: '#28a745',
+        backgroundColor: '#26897C',
         paddingVertical: 14,
         borderRadius: 8,
         alignItems: 'center',

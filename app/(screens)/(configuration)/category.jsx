@@ -34,7 +34,6 @@ const CategoryScreen = () => {
     });
   }, [navigation, router, type]);
 
-
   const fetchCategories = () => {
     if (!user?.uid) return;
 
@@ -132,7 +131,6 @@ const CategoryScreen = () => {
 
   return (
     <View style={styles.container}>
-
       <FlatList
         data={categories}
         keyExtractor={(item, index) => index.toString()}
