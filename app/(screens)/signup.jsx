@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -73,6 +74,7 @@ const Signup = () => {
       await setDoc(doc(db, 'banks', user.uid), banks);
       await setDoc(doc(db, 'categories', user.uid), categories);
 
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       setNotification({ msg: 'Account created successfully!', type: 'success' });
       router.replace('/onboarding');

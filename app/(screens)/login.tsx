@@ -12,8 +12,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
-import { auth, db } from "../../firebase"; // import your firebase.js
-import { decryptData } from "../../utils/encryption"; // import your encryption.js
+import { auth, db } from "../../firebase";
+import { decryptData } from "../../utils/encryption";
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,12 +28,8 @@ const Login = () => {
 
   const { setUser } = useAuth();
 
-  // after successful login
   const handleLogin = async () => {
-    // Reset error first
     setError("");
-
-    // Validate inputs
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
@@ -37,15 +38,12 @@ const Login = () => {
     try {
       setLoading(true);
 
-      // Firebase Login
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
-
-      // Get user data from Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
       if (!userDoc.exists()) {
@@ -54,17 +52,21 @@ const Login = () => {
       }
 
       const userData = decryptData(userDoc.data());
+      try {
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        console.log("User data stored successfully");
+      } catch (error) {
+        console.error("Failed to store user data:", error);
+      }
 
-      setUser(userData);
-      console.log(userData);
-      
+
       if (userData?.hasOnboarded) {
         router.push("/");
       } else {
         router.replace("./onboarding")
       }
 
-      // Navigate to home
     } catch (err: any) {
       console.log("Login Error:", err);
       if (err.code === "auth/user-not-found") {

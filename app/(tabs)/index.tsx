@@ -25,6 +25,20 @@ export default function Home() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [balance, setBalance] = useState(0);
 
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
+  // useEffect(() => {
+  //   if (!isReady) return;
+
+  //   if (!user?.hasOnboarded) {
+  //     router.replace("/welcome");
+  //   }
+  // }, [user, isReady]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -78,18 +92,8 @@ export default function Home() {
     fetchTransactions();
   }, [user]);
 
-  const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
 
-  useEffect(() => {
-    if (!isReady) return;
-    if (!user) {
-      router.replace("/welcome");
-    }
-  }, [user, isReady]);
 
   return (
     <View style={styles.container}>
@@ -114,9 +118,9 @@ export default function Home() {
             </View>
           </View>
         </View>
-        
+
         <BankCards />
-        
+
         <View style={{ backgroundColor: "white" }}>
           <RecentTransactions />
         </View>

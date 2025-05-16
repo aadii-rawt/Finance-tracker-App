@@ -1,9 +1,9 @@
-import { Alert, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { useAuth } from '../../context/AuthContext';
+import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Ionicons, MaterialIcons, FontAwesome, Entypo } from '@expo/vector-icons';
+import { signOut } from 'firebase/auth';
+import { Alert, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
+import { auth } from '../../firebase';
 import { decryptData } from "../../utils/encryption";
 
 export default function More() {
@@ -37,8 +37,8 @@ export default function More() {
           source={require('../../assets/images/profile.png')}
           style={styles.avatar}
         />
-        <Text style={styles.name}>{decryptData(user?.username) || 'Unknown User'}</Text>
       </View>
+        <Text style={styles.name}>{decryptData(user?.username)  || 'Unknown User'} </Text>
 
       {/* Grid Menu */}
       <View style={styles.grid}>
@@ -64,9 +64,9 @@ const GridItem = ({ icon, label, onPress }) => (
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', alignItems : "center", justifyContent : "center" },
-  avatarSection: { alignItems: 'center', marginVertical: 50 ,width: 100, height: 100, borderRadius: 50, borderRadius: 50, borderWidth: 3, borderColor: '#26897C' },
+  avatarSection: { alignItems: 'center' ,width: 100, height: 100, borderRadius: 50, borderRadius: 50, borderWidth: 3, borderColor: '#26897C' },
   avatar: { width: "100%", height: "100%", },
-  name: { fontSize: 18, fontWeight: '700', marginTop: 10 },
+  name: { fontSize: 18, fontWeight: '700', marginTop: 10, textAlign : "center",marginBottom : 30 },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
