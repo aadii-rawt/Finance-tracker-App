@@ -1,11 +1,11 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { useNavigation } from "expo-router";
+import { doc, getDoc } from "firebase/firestore";
+import moment from "moment";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
 import { decryptData } from "../../utils/encryption";
-import moment from "moment"; 
-import { useNavigation } from "expo-router";
 
 const alphabetColors = {
   a: "#E53935", // Dark Red
@@ -45,7 +45,7 @@ const TransactionHistory = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Transaction History", 
+      headerTitle: "Transaction History",
     });
   }, [navigation]);
 
@@ -92,94 +92,92 @@ const TransactionHistory = () => {
   }, [user?.uid]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
     <ScrollView >
-        <View style={styles.container}>
-          {Object.keys(groupedData).map((month) => (
-            <View key={month} style={styles.monthBlock}>
+      <View style={styles.container}>
+        {Object.keys(groupedData).map((month) => (
+          <View key={month} style={styles.monthBlock}>
+            <View
+              style={{
+                backgroundColor: "#EFEFEF",
+                padding: 5,
+                paddingHorizontal: 15,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={styles.monthTitle}>{month}</Text>
+              <View>
+                <Text style={styles.summary}>
+                  Income:{" "}
+                  <Text
+                    style={{ color: "green", marginLeft: 5, fontWeight: 500, fontSize: 16 }}
+                  >
+                    + ₹{groupedData[month].income.toFixed()}{" "}
+                  </Text>
+                </Text>
+                <Text style={styles.summary}>
+                  Expense:{" "}
+                  <Text
+                    style={{ color: "red", marginLeft: 5, fontWeight: 500, fontSize: 16, marginTop: 5 }}
+                  >
+                    - ₹{groupedData[month].expense.toFixed()}
+                  </Text>
+                </Text>
+              </View>
+            </View>
+            {groupedData[month].transactions.map((tx, i) => (
               <View
+                key={i}
                 style={{
-                  backgroundColor: "#EFEFEF",
-                  padding: 5,
-                  paddingHorizontal : 15,
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  padding: 5,
+                  paddingHorizontal: 15
                 }}
               >
-                <Text style={styles.monthTitle}>{month}</Text>
-                <View>
-                  <Text style={styles.summary}>
-                    Income:{" "}
-                    <Text
-                      style={{ color: "green", marginLeft: 5, fontWeight: 500,fontSize : 16 }}
-                    >
-                      + ₹{groupedData[month].income.toFixed()}{" "}
-                    </Text>
-                  </Text>
-                  <Text style={styles.summary}>
-                    Expense:{" "}
-                    <Text
-                      style={{ color: "red", marginLeft: 5, fontWeight: 500,fontSize : 16, marginTop : 5 }}
-                    >
-                      - ₹{groupedData[month].expense.toFixed()}
-                    </Text>
-                  </Text>
-                </View>
-              </View>
-              {groupedData[month].transactions.map((tx, i) => (
                 <View
-                  key={i}
                   style={{
+                    width: 50,
+                    height: 50,
+                    backgroundColor: alphabetColors[tx?.category[0]?.toLowerCase()] || "#C68EFD",
+                    borderRadius: 50,
                     display: "flex",
-                    flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: 5,
-                    paddingHorizontal : 15
+                    justifyContent: "center",
                   }}
                 >
-                  <View
-                    style={{
-                      width: 50,
-                      height: 50,
-                      backgroundColor: alphabetColors[tx?.category[0]?.toLowerCase()]  || "#C68EFD",
-                      borderRadius: 50,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
-                      style={{ color: "white", fontSize: 28, fontWeight: 500,textTransform: "uppercase" }}
-                    >
-                      {tx.category[0]}
-                    </Text>
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.category}>{tx.category}</Text>
-                    <Text style={styles.date}>
-                      {moment(tx.date).format("MMM D, YYYY")}
-                    </Text>
-                  </View>
                   <Text
-                    style={[
-                      styles.amount,
-                      tx.type === "income" ? styles.income : styles.expense,
-                    ]}
+                    style={{ color: "white", fontSize: 28, fontWeight: 500, textTransform: "uppercase" }}
                   >
-                    {tx.type === "income"
-                      ? `+ ₹${tx.amount}`
-                      : `- ₹${tx.amount}`}
+                    {tx.category[0]}
                   </Text>
                 </View>
-              ))}
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <Text style={styles.category}>{tx.category}</Text>
+                  <Text style={styles.date}>
+                    {moment(tx.date).format("MMM D, YYYY")}
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    styles.amount,
+                    tx.type === "income" ? styles.income : styles.expense,
+                  ]}
+                >
+                  {tx.type === "income"
+                    ? `+ ₹${tx.amount}`
+                    : `- ₹${tx.amount}`}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 

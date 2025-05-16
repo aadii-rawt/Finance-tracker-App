@@ -1,11 +1,11 @@
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/firebase';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome6, Fontisto, Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { doc, getDoc } from 'firebase/firestore';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 
 const alphabetColors = {
@@ -44,6 +44,9 @@ export default function Transaction() {
   const [searchText, setSearchText] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -97,7 +100,10 @@ export default function Transaction() {
         category: tx.category,
         amount: tx.amount,
         time,
-        icon: tx.type === 'income' ? 'attach-money' : 'money-off',
+        date: tx.date,
+        accountName: tx.accountName,
+        description: tx.description,
+        type: tx.type,
       };
 
       const groupIndex = acc.findIndex(g => g.date === day);
@@ -165,24 +171,82 @@ export default function Transaction() {
                 {dayData.day}, {dayData.date} {month.format('MMMM YYYY')}
               </Text>
               {dayData.items.map((item, idx) => (
-                <View key={idx} style={styles.item}>
-                  <View style={{width : 50, height : 50, marginRight : 10, borderRadius : 50,  backgroundColor: alphabetColors[item?.category[0]?.toLowerCase()]  || "#C68EFD",display : "flex", flexDirection : "row", alignItems : "center", justifyContent : "center"}}>
-                    <Text style={{color : "white", fontSize : 24, fontWeight : "bold"}}>{item?.category[0]}</Text>
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.item}
+                  onPress={() => {
+                    setSelectedTransaction(item);
+                    setModalVisible(true);
+                  }}
+                >
+                  <View style={{ width: 50, height: 50, marginRight: 10, borderRadius: 50, backgroundColor: alphabetColors[item?.category[0]?.toLowerCase()] || "#C68EFD", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                    <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>{item?.category[0]}</Text>
                   </View>
                   <View style={styles.itemDetails}>
                     <Text style={styles.itemCategory}>{item.category}</Text>
                     <Text style={styles.itemTime}>{item.time}</Text>
                   </View>
                   <View style={styles.itemAmount}>
-                    <Text style={{ color: item.icon === 'attach-money' ? 'green' : 'red' , fontSize : 16}}>₹{item.amount}</Text>
+                    <Text style={{ color: item.type === 'income' ? 'green' : 'red', fontSize: 16 }}>₹{item.amount}</Text>
                   </View>
-                </View>
+                </TouchableOpacity>
+
               ))}
             </View>
           ))
         )}
       </ScrollView>
-    </View>
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={() => { }}>
+              <View style={styles.modalContainer}>
+                <View style={styles.iconWrapper}>
+                  <View style={{ width: 70, height: 70, backgroundColor: "#26897C", borderRadius: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                    {selectedTransaction?.type == "income" ?
+                      <AntDesign name="download" size={28} color="white" /> :
+                      <AntDesign name="upload" size={28} color="white" />
+                    }
+                  </View>
+                </View>
+                <View>
+                  <Text style={{ textAlign: "center", color: selectedTransaction?.type === 'income' ? 'green' : 'red', fontSize: 16, marginVertical: 20, marginTop: 30, fontSize: 38, fontWeight: 500 }}>₹{selectedTransaction?.amount}</Text>
+                </View>
+
+                <View style={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", flexDirection: "row" }}>
+                  <View style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 }}>
+                    <Fontisto name="date" size={16} color="#828281" />
+                    <Text style={{ fontSize: 16, color: "#828281" }}>{selectedTransaction?.date}</Text>
+                  </View>
+                  <View style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 }}>
+                    <FontAwesome6 name="clock-four" size={16} color="#828281" />
+                    <Text style={{ fontSize: 16, color: "#828281" }}>{selectedTransaction?.time}</Text>
+                  </View>
+                </View>
+                <View style={styles.card}>
+                  <DetailRow label="Amount" value={`₹${selectedTransaction?.amount}`} boldValue />
+                  <DetailRow label="Category" value={selectedTransaction?.category} />
+                  <DetailRow label="Account" value={selectedTransaction?.accountName} />
+                  {/* <DetailRow label="CreatedAt" value="$0.00" />
+              <DetailRow label="Deposit Date" value="Oct 23, 2026" />
+              <DetailRow label="Deposit Method" value="Instant ⚡" boldValue /> */}
+                </View>
+
+                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View >
   );
 }
 
@@ -215,6 +279,14 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
   },
+  iconWrapper: {
+    position: 'absolute',
+    top: -33,
+    left: '50%',
+    transform: [{ translateX: -14 }],
+
+  },
+
   icon: {
     marginRight: 10,
   },
@@ -269,4 +341,67 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
   },
+  modalOverlay: {
+    flex: 1,
+    // backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+
+  modalContainer: {
+    backgroundColor: '#f0f0f0',
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  card: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    // borderBottomColor: '#e0e0e0',
+    // borderBottomWidth: 1,
+  },
+  label: {
+    color: '#696969',
+    fontSize: 15,
+  },
+  value: {
+    color: '#111',
+    fontSize: 15,
+  },
+  boldValue: {
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#26897C',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+
 });
+
+function DetailRow({ label, value, boldValue }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, boldValue && styles.boldValue]}>{value}</Text>
+    </View>
+  );
+}

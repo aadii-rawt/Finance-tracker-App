@@ -1,13 +1,12 @@
-import React, { useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
 import { useNavigation, useRouter } from "expo-router";
+import { useLayoutEffect } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 const settings = [
   {
@@ -50,7 +49,6 @@ const Configuration = () => {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView style={styles.container}>
         {settings.map((section, i) => (
           <View key={i} style={styles.section}>
@@ -74,7 +72,6 @@ const Configuration = () => {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
   );
 };
 
