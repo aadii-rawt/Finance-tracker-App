@@ -8,6 +8,7 @@ import {
 } from "react-native";
 
 import BankCards from "@/components/home/BankCards";
+import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import RecentTransactions from "../../components/RecentTransactions";
@@ -136,16 +137,14 @@ export default function Home() {
             borderRadius: 30,
             alignItems: "center",
             justifyContent: "center",
-            elevation: 5, // Android shadow
-            shadowColor: "#000", // iOS shadow
+            elevation: 5, 
+            shadowColor: "#000", 
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
           }}
         >
-          <Text style={{ color: "white", fontWeight: "bold", fontSize: 30 }}>
-            +
-          </Text>
+         <AntDesign name="plus" size={24} color="white" />
         </TouchableOpacity>
       </View>
     </View>

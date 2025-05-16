@@ -1,15 +1,15 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
-import { useNavigation, useLocalSearchParams } from "expo-router"; // useLocalSearchParams to get route param
-import { useAuth } from "../../../context/AuthContext";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"; // useLocalSearchParams to get route param
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase";
 import { decryptData } from "../../../utils/encryption";
 
@@ -18,12 +18,22 @@ const CategoryScreen = () => {
   const { type = "income" } = useLocalSearchParams(); // 👈 get 'type' from route params
   const [categories, setCategories] = useState([]);
   const { user, setNotification } = useAuth();
+  const router = useRouter()
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: type === "expense" ? "Expense Category" : "Income Category",
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => router.push(`newCategory?type=${type}`)} // 👈 Navigate with param
+        >
+          <Ionicons name="add" size={24} color="black" />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, type]);
+  }, [navigation, router, type]);
+
 
   const fetchCategories = () => {
     if (!user?.uid) return;
@@ -52,11 +62,10 @@ const CategoryScreen = () => {
 
   const handleDelete = async (categoryToDelete) => {
     if (!user?.uid) return;
-    console.log(categoryToDelete);
 
     try {
-      // Reference to the user's transaction document
-      const transactionRef = doc(db, "transactions", decryptData(user.uid));
+      // 1. Check if this category is used in any transaction
+      const transactionRef = doc(db, "transactions", user.uid);
       const transactionSnap = await getDoc(transactionRef);
 
       if (transactionSnap.exists()) {
@@ -65,52 +74,65 @@ const CategoryScreen = () => {
           ...(data.income || []),
           ...(data.expense || []),
         ];
-        // Check if any transaction has the category to be deleted
+
         const isCategoryUsed = allTransactions.some(
           (transaction) =>
-            transaction.category === categoryToDelete?.category &&
-            transaction.type === categoryToDelete?.type
+            transaction.category.toLowerCase() === categoryToDelete.category.toLowerCase() &&
+            transaction.type === categoryToDelete.type
         );
 
         if (isCategoryUsed) {
           setNotification({
-            msg: "This category cannot be deleted as they are associated with some transactions..",
+            msg: "This category cannot be deleted as it is associated with some transactions.",
             type: "error",
           });
           return;
         }
       }
 
-      // Reference to the user's category document
-      const userCategoriesRef = doc(db, "categories",decryptData(user.uid));
-      const updatedCategories = categories.filter(
-        (cat) => cat !== categoryToDelete
+      // 2. Get the full category list from Firestore
+      const categoryRef = doc(db, "categories", user.uid);
+      const categorySnap = await getDoc(categoryRef);
+
+      if (!categorySnap.exists()) {
+        console.warn("No category data found.");
+        return;
+      }
+
+      const data = categorySnap.data();
+      const allCategories = data.category || [];
+
+      // 3. Remove the specific category (match by name + type)
+      const updatedCategories = allCategories.filter(
+        (cat) =>
+          !(
+            cat.category.toLowerCase() === categoryToDelete.category.toLowerCase() &&
+            cat.type === categoryToDelete.type
+          )
       );
 
-      // Update Firestore with the new category list
-      await updateDoc(userCategoriesRef, { category: updatedCategories });
+      // 4. Update Firestore with the new category list
+      await updateDoc(categoryRef, { category: updatedCategories });
 
-      console.log("Category deleted successfully!");
-      fetchCategories();
+      console.log("Category deleted successfully.");
+      setNotification({
+        msg: "Category deleted successfully.",
+        type: "success",
+      });
+
     } catch (error) {
       console.error("Error deleting category:", error);
+      setNotification({
+        msg: "Failed to delete category.",
+        type: "error",
+      });
     }
   };
 
+
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => console.log("Add Category")}
-        >
-          <Ionicons name="add" size={28} color="white" />
-          <Text style={{ color: "white", fontSize: 18 }}>Add</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Category List */}
       <FlatList
         data={categories}
         keyExtractor={(item, index) => index.toString()}
@@ -140,19 +162,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: 10,
-  },
-  header: {
-    paddingHorizontal: 15,
-    paddingBottom: 15,
-  },
-  addButton: {
-    backgroundColor: "red",
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    borderRadius: 5,
   },
   itemRow: {
     flexDirection: "row",
