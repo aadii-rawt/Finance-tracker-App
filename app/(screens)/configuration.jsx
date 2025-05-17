@@ -1,5 +1,4 @@
-import { useNavigation, useRouter } from "expo-router";
-import { useLayoutEffect } from "react";
+import { useRouter } from "expo-router";
 import {
   ScrollView,
   StyleSheet,
@@ -7,6 +6,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import CustomHeader from "../../components/CustomHeader";
 
 const settings = [
   {
@@ -38,19 +38,13 @@ const Configuration = () => {
 
 
   const router = useRouter();
-  const navigation = useNavigation();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: "Configuration", 
-    });
-  }, [navigation]);
 
 
 
   return (
-    <View style={styles.container}>
-      <ScrollView >
+    <View style={{ flex: 1 }}>
+      <CustomHeader title="Configuration" />
+      <ScrollView style={styles.container}>
         {settings.map((section, i) => (
           <View key={i} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -80,7 +74,10 @@ const Configuration = () => {
 export default Configuration;
 
 const styles = StyleSheet.create({
-  container: { flex: 1,paddingHorizontal: 15  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 15
+  },
   section: { marginBottom: 25 },
   sectionTitle: {
     fontSize: 14,

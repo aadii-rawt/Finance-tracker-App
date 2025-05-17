@@ -4,11 +4,13 @@ import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import CustomHeader from "../../../components/CustomHeader";
 import { useAuth } from "../../../context/AuthContext";
 import { db } from "../../../firebase";
 import { decryptData } from "../../../utils/encryption";
@@ -131,10 +133,17 @@ const CategoryScreen = () => {
 
   return (
     <View style={styles.container}>
+      <CustomHeader title={type === "expense" ? "Expense Category" : "Income Category"} action={ <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => router.push(`newCategory?type=${type}`)} // 👈 Navigate with param
+        >
+          <Ionicons name="add" size={24} color="black" />
+        </TouchableOpacity>}/>
+      <ScrollView>
       <FlatList
         data={categories}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={{ paddingHorizontal: 10 }}
+        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom : 20 }}
         renderItem={({ item }) => (
           <View style={styles.itemRow}>
             <Text style={styles.itemText}>{item?.category}</Text>
@@ -149,6 +158,8 @@ const CategoryScreen = () => {
           </Text>
         }
       />
+
+      </ScrollView>
     </View>
   );
 };
@@ -158,8 +169,6 @@ export default CategoryScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 10,
   },
   itemRow: {
     flexDirection: "row",

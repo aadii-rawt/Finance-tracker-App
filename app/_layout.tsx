@@ -29,8 +29,9 @@ export default function RootLayout() {
             <Stack.Screen name="(screens)/addtransaction" options={{ headerShown: false }} />
             <Stack.Screen name="(screens)/login" options={{ headerShown: false }} />
             <Stack.Screen name="(screens)/signup" options={{ headerShown: false }} />
-            {/* <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} /> */}
-            {/* <Stack.Screen name="(screens)/configuration" options={{ headerShown: false }} /> */}
+            <Stack.Screen name="(screens)/(configuration)/category" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/(configuration)/newCategory" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)/configuration" options={{ headerShown: false }} />
             <Stack.Screen name="(screens)/onboarding" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>

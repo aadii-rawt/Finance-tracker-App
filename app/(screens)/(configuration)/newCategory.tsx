@@ -1,8 +1,8 @@
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/firebase';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,6 +10,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import CustomHeader from "../../../components/CustomHeader";
 
 const NewCategory = () => {
     const { type } = useLocalSearchParams();
@@ -19,12 +20,12 @@ const NewCategory = () => {
     const [categoryType, setCategoryType] = useState(type || 'income');
     const { user } = useAuth()
 
-    const navigation = useNavigation();
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: categoryType == "income" ? "Income Category" : "Expense Category",
-        });
-    }, [navigation]);
+    // const navigation = useNavigation();
+    // useLayoutEffect(() => {
+    //     navigation.setOptions({
+    //         headerTitle: categoryType == "income" ? "Income Category" : "Expense Category",
+    //     });
+    // }, [navigation]);
 
     const handleSave = async () => {
         if (!categoryName.trim()) {
@@ -71,19 +72,21 @@ const NewCategory = () => {
 
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.label}>Category Name</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="e.g. Shopping, Salary"
-                value={categoryName}
-                placeholderTextColor="#6e6d6b"
-                onChangeText={setCategoryName}
-            />
-
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+        <View style={{flex : 1}}>
+            <CustomHeader title={type === "expense" ? "Expense Category" : "Income Category"} />
+            <View style={styles.container}>
+                <Text style={styles.label}>Category Name</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="e.g. Shopping, Salary"
+                    value={categoryName}
+                    placeholderTextColor="#6e6d6b"
+                    onChangeText={setCategoryName}
+                />
+                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                    <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -93,9 +96,7 @@ export default NewCategory;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         padding: 20,
-        // paddingTop: Platform.OS === 'android' ? 40 : 60,
     },
     label: {
         fontSize: 16,
