@@ -1,13 +1,5 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Switch,
-} from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useNavigation } from "expo-router";
 import {
   arrayUnion,
   doc,
@@ -16,12 +8,22 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import uuid from 'react-native-uuid';
+import DropDown from "../../components/dropDown";
+import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
 import { decryptData } from "../../utils/encryption";
-import { useAuth } from "../../context/AuthContext";
-import DropDown from "../../components/dropDown";
-import uuid from 'react-native-uuid';
-import { useNavigation } from "expo-router";
 
 const Addtransaction = () => {
 
@@ -29,7 +31,7 @@ const Addtransaction = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "Add Transaction", 
+      headerTitle: "Add Transaction",
     });
   }, [navigation]);
 
@@ -39,6 +41,10 @@ const Addtransaction = () => {
   const [isRecurring, setIsRecurring] = useState(false);
   const [endDate, setEndDate] = useState("");
   const { user, setNotification } = useAuth();
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
 
   const [formData, SetFormData] = useState({
     type: "income",
@@ -61,24 +67,24 @@ const Addtransaction = () => {
     if (formData.amount <= 0) {
       return setNotification({ msg: "Please Enter a valid amount", type: "error" });
     }
-  
+
     if (!formData.type || !formData.amount || !formData.category || !formData.accountName) {
       return setNotification({ msg: "Please fill all required fields!", type: "error" });
     }
-  
+
     try {
       const fieldName = formData.type === "income" ? "income" : "expense";
       const docRef = doc(db, "transactions", decryptData(user?.uid));
-  
+
       if (formData.accountName) {
         const bank = banks.find(bank => bank.accountName === formData.accountName);
         if (formData.date >= bank.createDate) {
           await updateBankBalance(bank.accountName, formData.amount, fieldName);
         }
       }
-  
+
       const transactionId = uuid.v4();
-  
+
       // Build transactionData dynamically
       const transactionData = {
         transactionId,
@@ -90,9 +96,9 @@ const Addtransaction = () => {
         accountName: formData.accountName,
         createdAt: Date.now(),
         businessName: formData.business,
-        isRecurring : isRecurring,
+        isRecurring: isRecurring,
       };
-  
+
       // Store in transactions
       await setDoc(
         docRef,
@@ -101,10 +107,10 @@ const Addtransaction = () => {
         },
         { merge: true }
       );
-  
+
       // Store in business_transactions
       const userRef = doc(db, "business_transactions", decryptData(user.uid));
-  
+
       await setDoc(
         userRef,
         {
@@ -115,7 +121,7 @@ const Addtransaction = () => {
         },
         { merge: true }
       );
-  
+
       // Store in recurring_transactions if applicable
       if (isRecurring) {
         const recurringDocRef = doc(db, "recurring_transactions", decryptData(user.uid));
@@ -124,11 +130,11 @@ const Addtransaction = () => {
           recurringTransactionId: uuid.v4(),
           startDate: formData.date,
           status: "active",
-          recurringType : formData.recurringType,
+          recurringType: formData.recurringType,
           endDate: endDate ? new Date(endDate).getTime() : null,
           nextExecution: calculateNextExecution(formData.date, formData.recurringType),
         };
-  
+
         await setDoc(
           recurringDocRef,
           {
@@ -137,9 +143,9 @@ const Addtransaction = () => {
           { merge: true }
         );
       }
-  
+
       setNotification({ msg: "Transaction Added", type: "success" });
-  
+
       // Reset Form
       SetFormData({
         type: "expense",
@@ -159,7 +165,7 @@ const Addtransaction = () => {
       // setIsSubmitting(false);
     }
   };
-  
+
   const updateBankBalance = async (bankId, amount, fieldName) => {
 
     const userRef = doc(db, "banks", decryptData(user.uid));
@@ -209,7 +215,7 @@ const Addtransaction = () => {
     const month = `0${d.getMonth() + 1}`.slice(-2);
     const day = `0${d.getDate()}`.slice(-2);
     return `${year}-${month}-${day}`;
-};
+  };
 
   useEffect(() => {
     fetchBanks();
@@ -236,7 +242,23 @@ const Addtransaction = () => {
       <TextInput style={styles.input} placeholder="Business (optional)" value={formData.business} onChangeText={(text) => handleDataChange("business", text)} />
 
       <Text style={styles.label}>Date</Text>
-      <TextInput style={styles.input} placeholder="YYYY-MM-DD" value={formData.date} onChangeText={(text) => handleDataChange("date", text)} />
+      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+        <Text>{formatDate(formData.date)}</Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={new Date(formData.date)}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(Platform.OS === 'ios'); // iOS keeps open, Android closes
+            if (selectedDate) {
+              handleDataChange('date', selectedDate);
+            }
+          }}
+        />
+      )}
 
       <Text style={styles.label}>Description</Text>
       <TextInput style={styles.input} placeholder="Description (optional)" value={formData.description} onChangeText={(text) => handleDataChange("description", text)} />

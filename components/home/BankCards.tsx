@@ -1,6 +1,7 @@
 // components/BAml.js
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/firebase';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -34,7 +35,9 @@ const BankCards = () => {
                 {accounts.map((account, index) => (
                     <View key={index} style={[styles.item, { width: '40%' }]}>
                         <View style={[styles.iconCircle, { backgroundColor: account?.bgColor || '#ccc' }]}>
-                            <Text style={styles.iconText}>{account?.icon || '🏦'}</Text>
+                            {account?.accountType == "Cash" ?
+                            <FontAwesome5 name="money-bill" size={24} color="#26897C" /> :
+                            <MaterialCommunityIcons name="bank" size={24} color="#26897C" /> }
                         </View>
                         <View>
                             <Text style={styles.accountName} numberOfLines={1} ellipsizeMode="tail" >{account?.accountName}</Text>
