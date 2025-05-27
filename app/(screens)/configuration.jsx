@@ -16,7 +16,7 @@ const settings = [
       { label: "Expenses Category Setting", route: "/(configuration)/category?type=expense" },
       // { label: "Subcategory", value: "OFF", route: "/subcategory" },
       { label: "Budget Setting", route: "/budget" },
-      // { label: "Repeat Setting", route: "/repeat" },
+      { label: "Repeat Transaction", route: "/(configuration)/recurringTransaction" },
     ],
   },
   {
