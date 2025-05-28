@@ -314,11 +314,12 @@ const styles = StyleSheet.create({
   },
   item: {
     flexDirection: 'row',
-    // backgroundColor: '#f9f9f9',
+    borderBottomWidth: 1,
+    borderBottomColor: "#D8D9DA",
     borderRadius: 10,
     // padding: 12,
     alignItems: 'center',
-    marginBottom: 15,
+    paddingVertical: 5,
   },
   itemIcon: {
     marginRight: 12,
