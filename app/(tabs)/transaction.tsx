@@ -1,41 +1,15 @@
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/firebase';
-import { AntDesign, FontAwesome6, Fontisto, Ionicons } from '@expo/vector-icons';
+import { AntDesign, FontAwesome6, Fontisto, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 
-const alphabetColors = {
-  a: "#E53935", // Dark Red
-  b: "#D81B60", // Dark Pink
-  c: "#8E24AA", // Dark Purple
-  d: "#5E35B1", // Dark Deep Purple
-  e: "#3949AB", // Dark Indigo
-  f: "#1E88E5", // Dark Blue
-  g: "#039BE5", // Dark Light Blue
-  h: "#00ACC1", // Dark Cyan
-  i: "#00897B", // Dark Teal
-  j: "#43A047", // Dark Green
-  k: "#7CB342", // Dark Light Green
-  l: "#C0CA33", // Dark Lime
-  m: "#FDD835", // Dark Yellow
-  n: "#FFB300", // Dark Amber
-  o: "#FB8C00", // Dark Orange
-  p: "#F4511E", // Dark Deep Orange
-  q: "#6D4C41", // Dark Brown
-  r: "#757575", // Dark Grey
-  s: "#546E7A", // Dark Blue Grey
-  t: "#D32F2F", // Darker Red
-  u: "#C2185B", // Darker Pink
-  v: "#7B1FA2", // Darker Purple
-  w: "#512DA8", // Darker Deep Purple
-  x: "#303F9F", // Darker Indigo
-  y: "#1976D2", // Darker Blue
-  z: "#0288D1"  // Darker Light Blue
-};
+import TransactionShimmer from '@/components/ui/ShimmerTransaction';
+import { alphabetColors } from "../../utils/utils";
 
 export default function Transaction() {
   const [transactions, setTransactions] = useState([]);
@@ -46,11 +20,15 @@ export default function Transaction() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { user } = useAuth();
+
+  const { user , setNotification} = useAuth();
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      setIsLoading(true);
+
       const docRef = doc(db, 'transactions', user?.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -64,6 +42,7 @@ export default function Transaction() {
       } else {
         setAllTransactions([]);
       }
+      setIsLoading(false);
     };
 
     fetchTransactions();
@@ -79,8 +58,7 @@ export default function Transaction() {
     if (date) setSelectedDate(moment(date).format('YYYY-MM-DD'));
   };
 
-  const filteredGrouped = allTransactions
-    .filter(tx => {
+  const filteredGrouped = allTransactions.filter(tx => {
       const matchesSearch =
         tx.category.toLowerCase().includes(searchText.toLowerCase()) ||
         tx.description?.toLowerCase().includes(searchText.toLowerCase());
@@ -104,6 +82,7 @@ export default function Transaction() {
         accountName: tx.accountName,
         description: tx.description,
         type: tx.type,
+        transactionId : tx.transactionId
       };
 
       const groupIndex = acc.findIndex(g => g.date === day);
@@ -115,6 +94,103 @@ export default function Transaction() {
       return acc;
     }, [])
     .sort((a, b) => parseInt(b.date) - parseInt(a.date));
+
+
+
+  const handleDelete = async (transactionToDelete, deleteType="single") => {
+    console.log(transactionToDelete);
+
+    if (!user) return;
+
+    try {
+      const transactionRef = doc(db,"transactions", user.uid);
+      const docSnap = await getDoc(transactionRef);
+
+      if (!docSnap.exists()) return;
+
+      const data = docSnap.data();
+      let newIncomeArray = [...(data.income || [])];
+      let newExpenseArray = [...(data.expense || [])];
+
+      // Restricted categories that cannot be deleted
+      const restrictedCategories = [
+        "Loan EMI",
+        "Flat Loan Payment",
+        "Flat Loan Receipt",
+        "Flat Loan Interest Received",
+        "Flat Loan Interest Payment",
+      ];
+
+      // Helper function to update bank balance on delete
+      const updateBankBalanceOnDelete = async (accountName, amount, type) => {
+        if (!accountName) return;
+        const bankRef = doc(db, "banks", user.uid);
+        const bankSnap = await getDoc(bankRef);
+
+        if (!bankSnap.exists()) return;
+
+        const bankData = bankSnap.data();
+        const updatedBanks = bankData.banks.map((bank) => {
+          if (bank.accountName === accountName) {
+            return {
+              ...bank,
+              initialBalance:
+                type === "income"
+                  ? bank.initialBalance - parseFloat(amount)
+                  : bank.initialBalance + parseFloat(amount),
+            };
+          }
+          return bank;
+        });
+
+        await updateDoc(bankRef, { banks: updatedBanks });
+      };
+
+      if (true) {
+        // Prevent deletion if it's in the restricted categories
+        if (restrictedCategories.includes(transactionToDelete.category)) {
+          setNotification({
+            msg: "This transaction cannot be deleted.",
+            type: "error",
+          });
+          return;
+        }
+
+        // 🔁 Update bank balance before deleting
+        await updateBankBalanceOnDelete(
+          transactionToDelete.accountName,
+          transactionToDelete.amount,
+          transactionToDelete.type
+        );
+
+        // Delete single transaction
+        if (transactionToDelete.type === "income") {
+          newIncomeArray = newIncomeArray.filter(
+            (txn) => txn.transactionId !== transactionToDelete.transactionId
+          );
+        } else {
+          newExpenseArray = newExpenseArray.filter(
+            (txn) => txn.transactionId !== transactionToDelete.transactionId
+          );
+        }
+      } 
+      // Update Firestore with new filtered arrays
+      await updateDoc(transactionRef, {
+        income: newIncomeArray,
+        expense: newExpenseArray,
+      });
+
+      setNotification({
+        msg: "Transaction(s) deleted successfully",
+        type: "success",
+      });
+    } catch (error) {
+      setNotification({ msg: "Oops something went wrong.", type: "error" });
+      console.error("Error deleting transactions:", error);
+    } finally {
+      setModalVisible(false)
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -160,9 +236,10 @@ export default function Transaction() {
       )}
 
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-        {filteredGrouped.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No Transaction History</Text>
+        {isLoading ? (<TransactionShimmer />
+        ) : filteredGrouped.length === 0 ? (
+          <View >
+            <Text style={{ textAlign: "center" }}>No Transaction History</Text>
           </View>
         ) : (
           filteredGrouped.map((dayData, index) => (
@@ -215,6 +292,9 @@ export default function Transaction() {
                     }
                   </View>
                 </View>
+                <View style={{ display: "flex", flexDirection: "row", justifyContent :"flex-end", width :"100%", alignItems : "flex-end" }}>
+                  <TouchableOpacity onPress={() => handleDelete(selectedTransaction)}><MaterialIcons name="delete-outline" size={24} color="black" /></TouchableOpacity>
+                </View>
                 <View>
                   <Text style={{ textAlign: "center", color: selectedTransaction?.type === 'income' ? 'green' : 'red', fontSize: 16, marginVertical: 20, marginTop: 30, fontSize: 38, fontWeight: 500 }}>₹{selectedTransaction?.amount}</Text>
                 </View>
@@ -233,9 +313,6 @@ export default function Transaction() {
                   <DetailRow label="Amount" value={`₹${selectedTransaction?.amount}`} boldValue />
                   <DetailRow label="Category" value={selectedTransaction?.category} />
                   <DetailRow label="Account" value={selectedTransaction?.accountName} />
-                  {/* <DetailRow label="CreatedAt" value="$0.00" />
-              <DetailRow label="Deposit Date" value="Oct 23, 2026" />
-              <DetailRow label="Deposit Method" value="Instant ⚡" boldValue /> */}
                 </View>
 
                 <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>

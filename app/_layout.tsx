@@ -15,7 +15,7 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-  const isConnected = useNetStatus(); // ← get connectivity status
+  const isConnected = useNetStatus();
 
   if (!loaded) {
     return null;
